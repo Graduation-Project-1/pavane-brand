@@ -1,0 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend&display=swap");
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Lexend", sans-serif;
+}
+
+.row > * {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.row {
+  margin: 0 !important;
+}
+
+:root {
+  --mainColor: #ff7900;
+  --secondaryColor: #ffffff;
+}
+
+// #FFFFFF
+// #FFA300
+// #FF7900 => MainColor
+// #242424
