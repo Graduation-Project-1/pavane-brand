@@ -3,16 +3,13 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import Navbar from '../../components/Navbar/Navbar'
 import Sidebar from '../../components/Sidebar/Sidebar'
 import Brand from '../../pages/Brand/Brand'
+import EditBrand from '../../pages/Brand/EditBrand/EditBrand'
+import Categories from '../../pages/Categories/Categories'
+import AddCategory from '../../pages/Categories/AddCategory/AddCategory'
+import CategoryDetails from '../../pages/Categories/CategoryDetails/CategoryDetails'
 // import Items from '../../pages/Items/Items'
 // import Collections from '../../pages/Collections/Collections'
-// import Categories from '../../pages/Categories/Categories'
 // import Advertisements from '../../pages/Advertisements/Advertisements'
-// import AddAdmin from '../../pages/Admins/AddAdmin/AddAdmin'
-// import AdminDetails from '../../pages/Admins/AdminDetails/AdminDetails'
-// import EditAdmin from '../../pages/Admins/AdminDetails/EditAdmin/EditAdmin'
-// import AddCategory from '../../pages/Categories/AddCategory/AddCategory'
-// import CategoryDetails from '../../pages/Categories/CategoryDetails/CategoryDetails'
-// import EditCategory from '../../pages/Categories/CategoryDetails/EditCategory/EditCategory'
 // import AddItem from '../../pages/Items/AddItem/AddItem'
 // import ItemDetails from '../../pages/Items/ItemDetails/ItemDetails'
 // import AddCollection from '../../pages/Collections/AddCollection/AddCollection'
@@ -38,9 +35,7 @@ export default function Dashboard() {
         <Routes>
           <Route path='/' element={<Navigate replace to='/brand' />} />
           <Route path='/brand' element={<Brand />} />
-          {/* <Route path='/admins/:id' element={<AdminDetails />} />
-          <Route path='/admins/:id/edit' element={<EditAdmin />} />
-          <Route path='/admins/addAdmin' element={<AddAdmin />} /> */}
+          <Route path='/brand/edit' element={<EditBrand />} />
 
           {/* <Route path='/items' element={<Items />} />
           <Route path='/items/:id' element={<ItemDetails />} />
@@ -52,10 +47,9 @@ export default function Dashboard() {
           <Route path='/collections/:id/edit' element={<EditCollection />} />
           <Route path='/collections/addCollection' element={<AddCollection />} /> */}
 
-          {/* <Route path='/categories' element={<Categories />} />
+          <Route path='/categories' element={<Categories />} />
           <Route path='/categories/:id' element={<CategoryDetails />} />
-          <Route path='/categories/:id/edit' element={<EditCategory />} />
-          <Route path='/categories/addCategory' element={<AddCategory />} /> */}
+          <Route path='/categories/addCategory' element={<AddCategory />} />
 
           {/* <Route path='/advertisements' element={<Advertisements />} />
           <Route path='/advertisements/:id' element={<AdvertisementDetails />} />

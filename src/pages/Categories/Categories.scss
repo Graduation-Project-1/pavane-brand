@@ -1,0 +1,121 @@
+.overlay-modal {
+  .add-btn {
+    background-color: #ffa300 !important;
+    border: 1px solid #ffa300 !important;
+    color: #fff;
+    transition: all 0.6s;
+
+    &:hover {
+      background-color: #fff !important;
+      border: 1px solid #ffa300 !important;
+      color: #ffa300;
+    }
+  }
+}
+
+.categories {
+  height: 100vh;
+
+  .add-category {
+    display: flex;
+    justify-content: flex-end;
+    margin: 20px;
+
+    .add-category-btn {
+      background-color: #ffa300;
+      border: 1px solid #ffa300;
+      color: var(--secondaryColor);
+      padding: 8px 12px;
+      font-size: 18px;
+      border-radius: 7px;
+      transition: all 0.5s;
+
+      &:hover {
+        background-color: var(--secondaryColor);
+        border: 1px solid #ffa300;
+        color: #ffa300;
+      }
+    }
+  }
+
+  .nav-tabs {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin: 20px 20px 0px 20px;
+
+    .nav-item {
+      width: 25%;
+      .nav-link {
+        color: #242424;
+      }
+      .nav-link.active {
+        background-color: #ffa300;
+        color: #fff;
+      }
+    }
+  }
+
+  .category-data {
+    display: flex;
+    justify-content: center;
+
+    .my-table {
+      text-align: center;
+      margin: 20px;
+      cursor: pointer;
+
+      .add-btn {
+        background-color: #ffa300 !important;
+        border: 1px solid #ffa300 !important;
+        color: #fff;
+        transition: all 0.6s;
+
+        &:hover {
+          background-color: #fff !important;
+          border: 1px solid #ffa300 !important;
+          color: #ffa300;
+        }
+      }
+    }
+  }
+}
+
+.pagination-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .pagination-ul {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .active-pagination {
+      background-color: #ffa300;
+      list-style: none;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 3px;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+    }
+    .page-item {
+      background-color: #4d5154;
+      list-style: none;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 3px;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+    }
+  }
+}
