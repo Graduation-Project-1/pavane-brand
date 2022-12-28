@@ -169,7 +169,7 @@ export default function EditBrand() {
             <div className="main-image-label">
               {uploadImage && (
                 <img
-                  src={typeof uploadImage === "object" ? URL.createObjectURL(uploadImage) : uploadImage}
+                  src={typeof uploadImage === "object" ? URL.createObjectURL(uploadImage) : (`https://graduation-project-23.s3.amazonaws.com/${uploadImage}`)}
                   alt="imag-viewer"
                   className="uploaded-img"
                   onClick={() => {

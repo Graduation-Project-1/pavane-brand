@@ -292,7 +292,9 @@ export default function Categories() {
           {
             pages.map((page, index) => {
               return (
-                <li key={index} onClick={() => { setCurrentPage(page); getAllCategoriesHandler(page) }} className={currentPage === page ? "active-pagination" : "page-item"}>
+                <li key={index}
+                  onClick={() => { setCurrentPage(page); getAllCategoriesHandler(page) }}
+                  className={currentPage === page ? "active-pagination" : "page-item"}>
                   <span className="page-link">{page}</span>
                 </li>
               )
