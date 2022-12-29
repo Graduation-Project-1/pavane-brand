@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import OverlayLoading from '../../components/OverlayLoading/OverlayLoading'
 import brandServices from '../../services/brandServices'
 import categoryServices from '../../services/categoryServices'
+import Pagination from "react-js-pagination";
 import './Categories.scss'
+import MyCategories from './MyCategories'
 
 export default function Categories() {
 
@@ -16,7 +18,6 @@ export default function Categories() {
   const [isLeftClicked, setIsLeftClicked] = useState(true);
   const [isRightClicked, setIsRightClicked] = useState(false);
   const [modalShow, setModalShow] = useState(false)
-  const [modalShowRemove, setModalShowRemove] = useState(false)
   const [newCategoryId, setNewCategoryId] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [postPerPage, setPostPerPage] = useState(10)
@@ -24,10 +25,14 @@ export default function Categories() {
 
   let categoriesArr = []
 
-  async function getAllCategoriesHandler(page) {
+  function handlePageChange(pageNumber) {
+    setCurrentPage(pageNumber)
+  }
+
+  async function getAllCategoriesHandler(currentPage) {
     setLoading(true)
     try {
-      const { data } = await categoryServices.getAllCategories(page);
+      const { data } = await categoryServices.getAllCategories(currentPage);
       setLoading(true)
       if (data.success && data.status === 200) {
         setLoading(false);
@@ -59,21 +64,18 @@ export default function Categories() {
     setIsLeftClicked(true)
     setIsRightClicked(false)
     getAllCategoriesHandler()
+    getBrandByIdHandler()
   }
 
   function toggleRight() {
     setIsLeftClicked(false)
     setIsRightClicked(true)
     getBrandByIdHandler()
+    getAllCategoriesHandler()
   }
 
   function addBtn(categoryId) {
     setModalShow(true)
-    setNewCategoryId(categoryId)
-  }
-
-  function removeBtn(categoryId) {
-    setModalShowRemove(true)
     setNewCategoryId(categoryId)
   }
 
@@ -98,49 +100,20 @@ export default function Categories() {
     }
   }
 
-  async function removeCategoriesHandler() {
-
-    let categoriesObj = myCategories.filter((category) => {
-      return category._id !== newCategoryId
-    })
-
-    let categories = []
-    categoriesObj.map((category) => {
-      return (
-        categories.push(category._id)
-      )
-    })
-
-    try {
-      console.log(categories);
-      const { data } = await brandServices.updateProfileBrand({ categoryList: categories })
-      if (data.success && data.status === 200) {
-        setLoading(false);
-        setModalShowRemove(false)
-        getBrandByIdHandler()
-      }
-    } catch (error) {
-      setLoading(false);
-      setErrorMessage(error.response);
-    }
-  }
-
   useEffect(() => {
     getAllCategoriesHandler()
     getBrandByIdHandler()
   }, [])
+
+  useEffect(() => {
+    getAllCategoriesHandler(currentPage)
+  }, [currentPage])
 
   myCategories.map((category) => {
     return (
       categoriesArr.push(category._id)
     )
   })
-
-  const pages = []
-
-  for (let index = 1; index <= Math.ceil(totalResult / postPerPage); index++) {
-    pages.push(index)
-  }
 
   return <>
     {modalShow && <div className="overlay-modal" id='overlay-remove'>
@@ -153,27 +126,8 @@ export default function Categories() {
       </div>
     </div>}
 
-    {modalShowRemove && <div className="overlay-modal" id='overlay-remove'>
-      <div className="overlay-box">
-        <h3>Are you sure you want to remove?</h3>
-        <div className="modal-buttons">
-          <div onClick={() => setModalShowRemove(false)} className='btn btn-dark w-50'>Cancel</div>
-          <div onClick={() => { removeCategoriesHandler() }} className='delete btn btn-warning add-btn w-50'>Remove</div>
-        </div>
-      </div>
-    </div>}
-
     <div className="categories">
       <div className="row">
-        {/* <div className="col-md-12">
-          <div className="add-category">
-            <button
-              className='add-category-btn'
-              onClick={() => { navigate(`/categories/addCategory`) }}>
-              Add Category
-            </button>
-          </div>
-        </div> */}
         <div className="col-md-12">
           <div className="cats d-flex justify-content-center">
             <ul className="nav nav-tabs">
@@ -188,7 +142,6 @@ export default function Categories() {
                   </li>
                 )
               }
-
               {
                 isRightClicked ? (
                   <li className="nav-item" onClick={() => { toggleRight() }}>
@@ -246,62 +199,22 @@ export default function Categories() {
               </table>
             </div>
           </div>
+          <div className='pagination-nav'>
+            <Pagination
+              activePage={currentPage}
+              itemsCountPerPage={postPerPage}
+              totalItemsCount={totalResult}
+              pageRangeDisplayed={10}
+              onChange={handlePageChange}
+              itemClass="page-item"
+              linkClass="page-link"
+            />
+          </div>
         </div>
       ) : ""}
       {isRightClicked ? (
-        <div className="row">
-          <div className="col-md-12 text-center">
-            {
-              errorMessage ?
-                (<div className="alert alert-danger myalert">
-                  {errorMessage}
-                </div>) : ""
-            }
-          </div>
-          <div className="col-md-12">
-            <div className="category-data">
-              <table className="table table-striped table-hover my-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading ? (<OverlayLoading />) :
-                    (
-                      myCategories.map((category, index) => {
-                        return (
-                          <tr key={category._id} onClick={() => navigate(`/categories/${category._id}`)}>
-                            <td>{index + 1}</td>
-                            <td>{category.name}</td>
-                            <td><button onClick={(e) => { e.stopPropagation(); removeBtn(category._id) }} className='btn btn-danger'>Remove</button></td>
-                          </tr>
-                        )
-                      })
-                    )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <MyCategories />
       ) : ""}
-
-      <nav className='pagination-nav'>
-        <ul className="pagination-ul">
-          {
-            pages.map((page, index) => {
-              return (
-                <li key={index}
-                  onClick={() => { setCurrentPage(page); getAllCategoriesHandler(page) }}
-                  className={currentPage === page ? "active-pagination" : "page-item"}>
-                  <span className="page-link">{page}</span>
-                </li>
-              )
-            })
-          }
-        </ul>
-      </nav>
     </div>
   </>
 }

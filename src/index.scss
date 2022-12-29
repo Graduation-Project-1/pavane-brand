@@ -20,6 +20,49 @@
   --secondaryColor: #ffffff;
 }
 
+// PAGINATION
+.pagination-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  li:focus,
+  a:focus {
+    box-shadow: none !important;
+  }
+
+  .page-item {
+    background-color: transparent !important;
+    list-style: none;
+  }
+  .page-item.active {
+    background-color: transparent !important;
+    list-style: none;
+    border-radius: 5px;
+    padding: 0;
+    cursor: pointer;
+    display: block;
+  }
+
+  .page-item.active > .page-link {
+    background-color: #ffa300;
+    border: 1px solid #ffa300;
+    color: #fff;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .page-item > .page-link {
+    color: #242424;
+
+    &:hover {
+      color: #242424;
+    }
+  }
+}
+
 // #FFFFFF
 // #FFA300
 // #FF7900 => MainColor
