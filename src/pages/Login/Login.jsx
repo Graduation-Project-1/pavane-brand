@@ -36,11 +36,10 @@ export default function Login() {
       email: Joi.string()
         .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
         .required(),
-      password: Joi.string().required().pattern(/^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/).messages({
+      password: Joi.string().required().messages({
         "string.base": "please enter a valid password",
         "any.required": "password must be entered",
-        "string.empty": "password cannot be empty",
-        "string.pattern.base": "Wrong Password"
+        "string.empty": "password cannot be empty"
       })
     });
     return schema.validate(adminData, { abortEarly: false });
