@@ -43,8 +43,6 @@ export default function AddCollection() {
     const schema = Joi.object({
       name: Joi.string()
         .pattern(/^[a-zA-Z0-9 &_\-'"\\|,.\/]*$/)
-        .min(3)
-        .max(30)
         .required()
     });
     return schema.validate(newCollection, { abortEarly: false });
