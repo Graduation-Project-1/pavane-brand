@@ -20,6 +20,11 @@ let categoryServices = {
     const response = await Axios.get(`getAllCategories?page=${page}&size=${size}`)
     return response
   },
+
+  categorySearch: async (search, page = 1, size = 10) => {
+    const response = await Axios.get(`categorySearch?search=${search}&page=${page}&size=${size}`)
+    return response
+  },
 }
 
 export default categoryServices;

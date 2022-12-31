@@ -22,6 +22,7 @@ export default function Categories() {
   const [currentPage, setCurrentPage] = useState(1)
   const [postPerPage, setPostPerPage] = useState(10)
   const [totalResult, setTotalResult] = useState(0)
+  const [searchValue, setSearchValue] = useState('')
 
   let categoriesArr = []
 
@@ -36,6 +37,20 @@ export default function Categories() {
       setLoading(true)
       if (data.success && data.status === 200) {
         setLoading(false);
+        setCategories(data.Data)
+        setTotalResult(data.totalResult)
+      }
+    } catch (e) {
+      setLoading(false);
+      setErrorMessage(e.response.data.message);
+    }
+  }
+
+  async function searchCategoryByName(searchValue) {
+    try {
+      const { data } = await categoryServices.categorySearch(searchValue, 1, 5000)
+
+      if (data.success && data.status === 200) {
         setCategories(data.Data)
         setTotalResult(data.totalResult)
       }
@@ -109,6 +124,10 @@ export default function Categories() {
     getAllCategoriesHandler(currentPage)
   }, [currentPage])
 
+  useEffect(() => {
+    searchCategoryByName(searchValue)
+  }, [searchValue])
+
   myCategories.map((category) => {
     return (
       categoriesArr.push(category._id)
@@ -157,6 +176,11 @@ export default function Categories() {
           </div>
         </div>
       </div>
+
+      <div className="form-search">
+        <input onChange={(e) => setSearchValue(e.target.value)} className='form-control w-50' type="text" name="search" id="search" placeholder='Search...' />
+      </div>
+
       {isLeftClicked ? (
         <div className="row">
           <div className="col-md-12 text-center">
