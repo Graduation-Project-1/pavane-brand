@@ -11,10 +11,21 @@ let collectionServices = {
     return response
   },
 
+  getCollectionById: async (id) => {
+    const response = await Axios.get(`getCollectionById/${id}`)
+    return response
+  },
+
   getAllBrandCollections: async (page = 1, size = 10) => {
     const response = await Axios.get(`getAllBrandCollections?page=${page}&size=${size}`)
     return response
   },
+
+  deleteCollection: async (id) => {
+    const response = await Axios.delete(`deleteCollection/${id}`)
+    return response
+  },
+
 }
 
 export default collectionServices;

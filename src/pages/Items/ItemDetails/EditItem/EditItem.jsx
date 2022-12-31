@@ -342,15 +342,15 @@ export default function EditItem() {
                 <label htmlFor='xs'>XS</label>
               </div>
               <div className="check">
-                <input checked={isSelectedSize('S')} value='s' type="checkbox" id="s" onChange={(e) => {toggleSelectedSizesHandler("S") }} />
+                <input checked={isSelectedSize('S')} value='s' type="checkbox" id="s" onChange={(e) => { toggleSelectedSizesHandler("S") }} />
                 <label htmlFor='s'>S</label>
               </div>
               <div className="check">
-                <input checked={isSelectedSize('M')} value='m' type="checkbox" id="m" onChange={(e) => {toggleSelectedSizesHandler("M") }} />
+                <input checked={isSelectedSize('M')} value='m' type="checkbox" id="m" onChange={(e) => { toggleSelectedSizesHandler("M") }} />
                 <label htmlFor='m'>M</label>
               </div>
               <div className="check">
-                <input checked={isSelectedSize('L')} value='l' type="checkbox" id="l" onChange={(e) => {toggleSelectedSizesHandler("L") }} />
+                <input checked={isSelectedSize('L')} value='l' type="checkbox" id="l" onChange={(e) => { toggleSelectedSizesHandler("L") }} />
                 <label htmlFor='l'>L</label>
               </div>
               <div className="check">
