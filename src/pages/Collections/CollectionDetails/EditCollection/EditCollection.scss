@@ -1,0 +1,23 @@
+.date {
+  min-width: 100%;
+  .picker {
+    width: 100%;
+    padding: 10px 5px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+
+    &::-webkit-datetime-edit-text {
+      color: #242424;
+      padding: 0 0.3em;
+    }
+    &::-webkit-datetime-edit-month-field {
+      color: #242424;
+    }
+    &::-webkit-datetime-edit-day-field {
+      color: #242424;
+    }
+    &::-webkit-datetime-edit-year-field {
+      color: #242424;
+    }
+  }
+}

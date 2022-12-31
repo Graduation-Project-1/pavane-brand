@@ -390,7 +390,7 @@ export default function EditItem() {
               <button className='add-brand-button'>
                 {loading ?
                   (<i className="fas fa-spinner fa-spin "></i>)
-                  : "Edit Brand"}
+                  : "Edit Item"}
               </button>
             </form>
           </div>

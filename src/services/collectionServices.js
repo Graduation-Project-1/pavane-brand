@@ -21,6 +21,12 @@ let collectionServices = {
     return response
   },
 
+  updateCollection: async (id, obj) => {
+    const response = await Axios.put(`updateCollection/${id}`, obj)
+    return response
+  },
+
+
   deleteCollection: async (id) => {
     const response = await Axios.delete(`deleteCollection/${id}`)
     return response

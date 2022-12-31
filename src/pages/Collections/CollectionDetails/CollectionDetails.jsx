@@ -103,37 +103,38 @@ export default function CollectionDetails() {
             }</p>
           </div>
         </div>
-        <div className="col-md-12">
-          <div className="all-items">
-            <div className="all-items-label">
-              <h3>All Items</h3>
+        <div className="row">
+          <div className="col-md-12">
+            <div className="all-items">
+              <div className="all-items-label">
+                <h3>All Items</h3>
+              </div>
             </div>
-            <div className="row">
-              {
-                itemsList.map((item, index) => {
-                  return (
-                    <div className="col-md-3" key={item._id}>
-                      <div className="item" onClick={() => navigate(`/items/${item._id}`)}>
-                        {item.cover ? (
-                          <div className="image">
-                            <img src={`https://graduation-project-23.s3.amazonaws.com/${item.cover}`} alt="Item Image" />
-                          </div>
-                        ) : (
-                          <div className="image">
-                            <img src={item.images[0]} alt="Item Image" />
-                          </div>
-                        )}
-                        <div className="item-info">
-                          <h3>{item.name.slice(0, 10)}</h3>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })
-              }
-            </div>
-
           </div>
+        </div>
+        <div className="row data-data">
+          {
+            itemsList.map((item, index) => {
+              return (
+                <div className="col-md-3" key={item._id}>
+                  <div className="item" onClick={() => navigate(`/items/${item._id}`)}>
+                    {item.cover ? (
+                      <div className="image">
+                        <img src={`https://graduation-project-23.s3.amazonaws.com/${item.cover}`} alt="Item Image" />
+                      </div>
+                    ) : (
+                      <div className="image">
+                        <img src={item.images[0]} alt="Item Image" />
+                      </div>
+                    )}
+                    <div className="item-info">
+                      <h3>{item.name.slice(0, 10)}</h3>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          }
         </div>
       </div>
     )}

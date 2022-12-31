@@ -14,11 +14,11 @@ import AddItem from '../../pages/Items/AddItem/AddItem'
 import Collections from '../../pages/Collections/Collections'
 import AddCollection from '../../pages/Collections/AddCollection/AddCollection'
 import CollectionDetails from '../../pages/Collections/CollectionDetails/CollectionDetails'
+import EditCollection from '../../pages/Collections/CollectionDetails/EditCollection/EditCollection'
 // import Advertisements from '../../pages/Advertisements/Advertisements'
 // import AddAdvertisement from '../../pages/Advertisements/AddAdvertisement/AddAdvertisement'
 // import AdvertisementDetails from '../../pages/Advertisements/AdvertisementDetails/AdvertisementDetails'
 // import EditAdvertisement from '../../pages/Advertisements/AdvertisementDetails/EditAdvertisement/EditAdvertisement'
-// import EditCollection from '../../pages/Collections/CollectionDetails/EditCollection/EditCollection'
 
 export default function Dashboard() {
   return <>
@@ -44,7 +44,7 @@ export default function Dashboard() {
 
           <Route path='/collections' element={<Collections />} />
           <Route path='/collections/:id' element={<CollectionDetails />} />
-          {/* <Route path='/collections/:id/edit' element={<EditCollection />} /> */}
+          <Route path='/collections/:id/edit' element={<EditCollection />} />
           <Route path='/collections/addCollection' element={<AddCollection />} />
 
           <Route path='/categories' element={<Categories />} />
