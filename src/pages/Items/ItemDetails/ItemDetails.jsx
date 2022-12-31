@@ -121,8 +121,8 @@ export default function ItemDetails() {
 
             <p>Brand: {item?.brandId?.name}</p>
             <p>Price: {item.price}</p>
-            {/* <p>Discount: {item.discountRate}</p> */}
             <p>Gender: {item.gender}</p>
+            {item.isAdult ? (<p>For Adults: Yes</p>) : (<p>For Adults: No</p>)}
             <p>Rate: {item.averageRate}</p>
             <p>Available Sizes: {item.sizes + ", "}</p>
             <p>Available Colors: {item.colors + ", "}</p>

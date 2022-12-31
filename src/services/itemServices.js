@@ -21,6 +21,11 @@ let itemServices = {
     return response
   },
 
+  updateItem: async (id, obj) => {
+    const response = await Axios.put(`updateItem/${id}`, obj)
+    return response
+  },
+
   getAllBrandItems: async (page = 1, size = 10) => {
     const response = await Axios.get(`getAllBrandItems?page=${page}&size=${size}`)
     return response

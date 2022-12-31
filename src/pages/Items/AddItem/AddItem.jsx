@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import Multiselect from 'multiselect-react-dropdown';
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import brandServices from '../../../services/brandServices';
@@ -34,8 +35,7 @@ export default function AddItem() {
   const [newItem, setNewItem] = useState({
     name: "",
     price: 0,
-    description: "",
-    discountRate: ""
+    description: ""
   })
 
   const ref = useRef();
@@ -72,7 +72,7 @@ export default function AddItem() {
   async function getAllCategoriesHandler() {
     setLoading(true)
     try {
-      const { data } = await categoryServices.getAllCategories();
+      const { data } = await categoryServices.getAllCategories(1, 5000);
       setLoading(true)
       if (data.success && data.status === 200) {
         setLoading(false);
@@ -113,8 +113,7 @@ export default function AddItem() {
         .max(30)
         .required(),
       price: Joi.number().positive().required(),
-      description: Joi.string().pattern(/^[a-zA-Z &_\-'"\\|,.\/]*$/).min(3).max(50).required(),
-      discountRate: Joi.number().positive()
+      description: Joi.string().pattern(/^[a-zA-Z &_\-'"\\|,.\/]*$/).min(3).max(50).required()
     });
     return schema.validate(newItem, { abortEarly: false });
   }
@@ -170,7 +169,6 @@ export default function AddItem() {
           description: newItem.description,
           gender: gender,
           isAdult: isAdult,
-          discountRate: newItem.discountRate,
           sizes: sizes,
           colors: colors,
           brandId: brandId,
@@ -225,6 +223,13 @@ export default function AddItem() {
     getAllCategoriesHandler()
     getBrandByIdHandler()
   }, [])
+
+  let categoriesOptions = categories.map((category) => {
+    return ({
+      name: category.name,
+      id: category._id
+    })
+  })
 
   return <>
     <div className="row">
@@ -334,14 +339,6 @@ export default function AddItem() {
                 name="price"
                 id="price"
               />
-              <label htmlFor="discount">Discount</label>
-              <input
-                onChange={getNewItemData}
-                className='form-control add-item-input'
-                type="number"
-                name="discountRate"
-                id="discount"
-              />
               <label htmlFor="">Gender</label>
               <div className="wrapper add-item-input">
                 <input
@@ -417,16 +414,19 @@ export default function AddItem() {
               </div>
 
               <p className='select-categories'>Avaliable Categories</p>
-              {
-                categories.map((category) => {
-                  return (
-                    <div className="check" key={category._id}>
-                      <input type="checkbox" id={category.name} onChange={(e) => { toggleSelectedCategoriesHandler(category._id) }} />
-                      <label htmlFor={category.name}>{category.name}</label>
-                    </div>
-                  )
-                })
-              }
+              <Multiselect
+                displayValue="name"
+                onKeyPressFn={function noRefCheck() { }}
+                onRemove={function noRefCheck(selectedList, selectedItem) {
+                  toggleSelectedCategoriesHandler(selectedItem.id)
+                }}
+                onSearch={function noRefCheck() { }}
+                onSelect={function noRefCheck(selectedList, selectedItem) {
+                  toggleSelectedCategoriesHandler(selectedItem.id)
+                }}
+                options={categoriesOptions}
+                showCheckbox
+              />
               <button className='add-item-button'>
                 {loading ?
                   (<i className="fas fa-spinner fa-spin "></i>)
