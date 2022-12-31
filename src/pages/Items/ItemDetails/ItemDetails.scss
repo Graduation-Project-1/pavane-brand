@@ -1,0 +1,160 @@
+.overlay {
+  height: 100px;
+  width: 200px;
+  display: flex;
+  justify-content: center;
+}
+
+.image {
+  margin: 20px;
+  height: 250px;
+
+  img {
+    width: 100%;
+    height: 250px;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+}
+
+.item-details {
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+
+    .delete {
+      margin: 0 5px;
+    }
+    .edit {
+      margin: 0 5px;
+    }
+  }
+  background-color: burlywood;
+  height: auto;
+  margin: 20px;
+  padding: 10px;
+  border-radius: 10px;
+
+  h2 {
+    text-align: center;
+    color: #242424;
+    text-transform: uppercase;
+    margin-top: 7px;
+  }
+
+  p {
+    color: #242424;
+  }
+
+  .seeMore {
+    button {
+      border: none;
+      color: #fff;
+      padding: 3px 7px;
+      border-radius: 5px;
+      background-color: #ffc107;
+    }
+  }
+}
+
+.overlay-modal {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .overlay-box {
+    background-color: rgb(255, 255, 255);
+    padding: 30px;
+    border-radius: 20px;
+
+    .modal-buttons {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+      margin-top: 20px;
+
+      .btn {
+        margin: 0 5px !important;
+      }
+    }
+  }
+}
+
+.advertisement-data {
+  display: flex;
+  justify-content: center;
+  height: 350px;
+  // background-color: aqua;
+
+  .carousel {
+    width: 100%;
+    cursor: pointer;
+
+    .carousel-inner {
+      height: 300px;
+      width: 100%;
+      background-color: #fff;
+      padding: 0;
+      margin: 0;
+      border-radius: 5px;
+
+      .carousel-item {
+        height: 300px;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+
+        img {
+          width: fit-content;
+          height: 300px;
+          object-fit: contain;
+          padding: 0;
+          margin: 0;
+        }
+      }
+      .active {
+        background-color: transparent;
+      }
+    }
+    .carousel-control-prev {
+      position: absolute;
+      top: 35%;
+      left: -10px;
+      background-color: #ffc107;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+
+      .carousel-control-prev-icon{
+        background-size: 20px;
+      }
+
+    }
+    .carousel-control-next {
+      position: absolute;
+      top: 35%;
+      right: -30px;
+      background-color: #ffc107;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+
+      .carousel-control-next-icon{
+        background-size: 20px;
+      }
+      
+    }
+  }
+
+  .my-table {
+    text-align: center;
+    margin: 20px;
+    cursor: pointer;
+  }
+}

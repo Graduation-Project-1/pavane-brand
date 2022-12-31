@@ -1,0 +1,36 @@
+.collections {
+  height: 100vh;
+
+  .add-collection {
+    display: flex;
+    justify-content: flex-end;
+    margin: 20px;
+
+    .add-collection-btn {
+      background-color: #ffa300;
+      border: 1px solid #ffa300;
+      color: var(--secondaryColor);
+      padding: 8px 12px;
+      font-size: 18px;
+      border-radius: 7px;
+      transition: all 0.5s;
+
+      &:hover {
+        background-color: var(--secondaryColor);
+        border: 1px solid #ffa300;
+        color: #ffa300;
+      }
+    }
+  }
+
+  .collection-data {
+    display: flex;
+    justify-content: center;
+
+    .my-table {
+      text-align: center;
+      margin: 20px;
+      cursor: pointer;
+    }
+  }
+}
