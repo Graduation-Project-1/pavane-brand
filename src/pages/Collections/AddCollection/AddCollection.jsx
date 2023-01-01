@@ -73,20 +73,28 @@ export default function AddCollection() {
           let collectionID = data.Data._id
           var formData = new FormData();
           formData.append("images", uploadImage);
+          console.log(data);
           setLoading(true)
           try {
             const { data } = await collectionServices.uploadImageCollection(collectionID, formData)
             setLoading(true)
             if (data.success && data.status === 200) {
               setLoading(false);
+              console.log(data);
+            } else {
+              console.log(data);
             }
           } catch (error) {
+            console.log(error);
             setLoading(false);
             setErrorMessage(error);
           }
           navigate("/collections");
+        } else {
+          setErrorMessage(data.message);
         }
       } catch (error) {
+        console.log(error);
         setLoading(false);
         setErrorMessage(error.response.data.message);
       }
@@ -157,8 +165,6 @@ export default function AddCollection() {
     } else {
       setSelectedItems((prev) => { return [...prev, itemId] })
     }
-
-    console.log(itemId);
   }
 
   function getFinalCategories() {
@@ -271,7 +277,7 @@ export default function AddCollection() {
               />
               <label>Season</label>
               <select onChange={(e) => { setSeason(e.target.value) }} className='form-control w-100 add-brand-input' id="season" name="season" title='season'>
-                <option defaultValue='Season'>-- Season --</option>
+                <option disabled>-- Season --</option>
                 <option value="Winter">Winter</option>
                 <option value="Spring">Spring</option>
                 <option value="Summer">Summer</option>
