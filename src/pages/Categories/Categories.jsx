@@ -17,8 +17,6 @@ export default function Categories() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLeftClicked, setIsLeftClicked] = useState(true);
   const [isRightClicked, setIsRightClicked] = useState(false);
-  const [modalShow, setModalShow] = useState(false)
-  const [newCategoryId, setNewCategoryId] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [postPerPage, setPostPerPage] = useState(10)
   const [totalResult, setTotalResult] = useState(0)
@@ -89,24 +87,18 @@ export default function Categories() {
     getAllCategoriesHandler()
   }
 
-  function addBtn(categoryId) {
-    setModalShow(true)
-    setNewCategoryId(categoryId)
-  }
-
-  async function newCategoriesHandler() {
+  async function newCategoriesHandler(categoryId) {
     let categories = []
     myCategories.map((category) => {
       return (
         categories.push(category._id)
       )
     })
-    categories.push(newCategoryId)
+    categories.push(categoryId)
     try {
       const { data } = await brandServices.updateProfileBrand({ categoryList: categories })
       if (data.success && data.status === 200) {
         setLoading(false);
-        setModalShow(false)
         getBrandByIdHandler()
       }
     } catch (error) {
@@ -135,16 +127,6 @@ export default function Categories() {
   })
 
   return <>
-    {modalShow && <div className="overlay-modal" id='overlay-remove'>
-      <div className="overlay-box">
-        <h3>Are you sure you want to add?</h3>
-        <div className="modal-buttons">
-          <div onClick={() => setModalShow(false)} className='btn btn-dark w-50'>Cancel</div>
-          <div onClick={() => { newCategoriesHandler() }} className='delete btn btn-warning add-btn w-50'>Add</div>
-        </div>
-      </div>
-    </div>}
-
     <div className="categories">
       <div className="row">
         <div className="col-md-12">
@@ -213,7 +195,7 @@ export default function Categories() {
                               categoriesArr.includes(category._id) ?
                                 <td><button disabled className='btn btn-dark'>Added</button></td>
                                 :
-                                <td><button onClick={(e) => { e.stopPropagation(); addBtn(category._id) }} className='btn btn-warning add-btn'>Add</button></td>
+                                <td><button onClick={(e) => { e.stopPropagation(); newCategoriesHandler(category._id) }} className='btn btn-warning add-btn'>Add</button></td>
                             }
                           </tr>
                         )
