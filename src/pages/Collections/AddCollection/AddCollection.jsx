@@ -67,16 +67,8 @@ export default function AddCollection() {
           categoryList: getFinalCategories(),
           brandId: brandId
         }
-        let collectionData2 = {
-          name: newCollection.name,
-          date: date,
-          itemsList: getFinalItems(),
-          categoryList: getFinalCategories(),
-          brandId: brandId
-        }
-        const { data } = season === "" ?
-          (await collectionServices.addCollection(collectionData2)) :
-          (await collectionServices.addCollection(collectionData))
+
+        const { data } = await collectionServices.addCollection(collectionData)
         if (data.success && data.message === "collectionAdded") {
           setLoading(false);
           let collectionID = data.Data._id
@@ -289,6 +281,7 @@ export default function AddCollection() {
                 <option value="Spring">Spring</option>
                 <option value="Summer">Summer</option>
                 <option value="Fall">Fall</option>
+                <option value="none">none</option>
               </select>
               <label htmlFor="Date">Date</label>
               <div className="date add-brand-input">

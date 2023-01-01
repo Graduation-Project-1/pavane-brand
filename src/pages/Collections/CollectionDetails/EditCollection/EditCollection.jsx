@@ -310,6 +310,7 @@ export default function EditCollection() {
                 <option value="Spring">Spring</option>
                 <option value="Summer">Summer</option>
                 <option value="Fall">Fall</option>
+                <option value="none">none</option>
               </select>
 
               <label htmlFor="date">Date</label>

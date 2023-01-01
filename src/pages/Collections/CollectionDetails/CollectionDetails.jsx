@@ -90,7 +90,7 @@ export default function CollectionDetails() {
               </div>
             </div>
             <h2>{collection.name}</h2>
-            <p>Season: {collection.season}</p>
+            {collection.season === 'none' ? "" : (<p>Season: {collection.season}</p>)}
             <p>Date: {new Date(collection.date).toDateString()}</p>
             <p>Reviews: {collection.numberOfReviews}</p>
             <p>Likes: {collection.numberOfLikes}</p>
