@@ -67,7 +67,16 @@ export default function AddCollection() {
           categoryList: getFinalCategories(),
           brandId: brandId
         }
-        const { data } = await collectionServices.addCollection(collectionData)
+        let collectionData2 = {
+          name: newCollection.name,
+          date: date,
+          itemsList: getFinalItems(),
+          categoryList: getFinalCategories(),
+          brandId: brandId
+        }
+        const { data } = season === "" ?
+          (await collectionServices.addCollection(collectionData2)) :
+          (await collectionServices.addCollection(collectionData))
         if (data.success && data.message === "collectionAdded") {
           setLoading(false);
           let collectionID = data.Data._id
@@ -85,16 +94,14 @@ export default function AddCollection() {
               console.log(data);
             }
           } catch (error) {
-            console.log(error);
             setLoading(false);
-            setErrorMessage(error);
+            setErrorMessage(error.response.data.message);
           }
           navigate("/collections");
         } else {
           setErrorMessage(data.message);
         }
       } catch (error) {
-        console.log(error);
         setLoading(false);
         setErrorMessage(error.response.data.message);
       }
@@ -277,7 +284,7 @@ export default function AddCollection() {
               />
               <label>Season</label>
               <select onChange={(e) => { setSeason(e.target.value) }} className='form-control w-100 add-brand-input' id="season" name="season" title='season'>
-                <option disabled>-- Season --</option>
+                <option defaultValue={""}>-- Season --</option>
                 <option value="Winter">Winter</option>
                 <option value="Spring">Spring</option>
                 <option value="Summer">Summer</option>
