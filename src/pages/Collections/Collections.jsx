@@ -71,7 +71,8 @@ export default function Collections() {
                   (
                     collections.map((collection, index) => {
                       return (
-                        <tr key={collection._id} onClick={() => navigate(`/collections/${collection._id}`)}>
+                        <tr key={collection._id}
+                          onClick={() => navigate(`/collections/${collection._id}`)}>
                           <td>{index + 1}</td>
                           <td>{collection.name}</td>
                           <td>{collection.season}</td>

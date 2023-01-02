@@ -46,7 +46,9 @@ export default function Brand() {
         </div>
         <div className="col-md-4">
           <div className="image">
-            <img src={`https://graduation-project-23.s3.amazonaws.com/${brand.image}`} alt="Brand Image" />
+            <img src={`https://graduation-project-23.s3.amazonaws.com/${brand.image}`}
+              alt="Brand Image"
+            />
           </div>
         </div>
         <div className="col-md-8">
@@ -54,7 +56,11 @@ export default function Brand() {
             <div className="row">
               <div className="col-md-12">
                 <div className="actions">
-                  <button onClick={() => { navigate(`/brand/edit`) }} className='edit btn btn-warning'>Edit</button>
+                  <button
+                    onClick={() => { navigate(`/brand/edit`) }}
+                    className='edit btn btn-warning'>
+                    Edit
+                  </button>
                 </div>
               </div>
             </div>

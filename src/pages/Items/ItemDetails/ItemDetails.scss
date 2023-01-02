@@ -90,7 +90,6 @@
   display: flex;
   justify-content: center;
   height: 350px;
-  // background-color: aqua;
 
   .carousel {
     width: 100%;
@@ -131,10 +130,9 @@
       height: 30px;
       border-radius: 50%;
 
-      .carousel-control-prev-icon{
+      .carousel-control-prev-icon {
         background-size: 20px;
       }
-
     }
     .carousel-control-next {
       position: absolute;
@@ -145,10 +143,9 @@
       height: 30px;
       border-radius: 50%;
 
-      .carousel-control-next-icon{
+      .carousel-control-next-icon {
         background-size: 20px;
       }
-      
     }
   }
 

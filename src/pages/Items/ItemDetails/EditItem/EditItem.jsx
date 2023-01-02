@@ -210,7 +210,6 @@ export default function EditItem() {
     )
   })
 
-
   function isSelectedSize(size) {
     return newItem["sizes"].includes(size)
   }
@@ -249,7 +248,8 @@ export default function EditItem() {
             <div className="main-image-label">
               {uploadImage && (
                 <img
-                  src={typeof uploadImage === "object" ? URL.createObjectURL(uploadImage) : (`https://graduation-project-23.s3.amazonaws.com/${uploadImage}`)}
+                  src={typeof uploadImage === "object" ? URL.createObjectURL(uploadImage) :
+                    (`https://graduation-project-23.s3.amazonaws.com/${uploadImage}`)}
                   alt="imag-viewer"
                   className="uploaded-img"
                   onClick={() => {
@@ -332,33 +332,67 @@ export default function EditItem() {
                 </label>
               </div>
               <div className="check add-item-input">
-                <input checked={newItem.isAdult} type="checkbox" id="isAdult" onChange={(e) => { setNewItem((prev) => { return { ...prev, isAdult: e.target.checked } }) }} />
+                <input
+                  checked={newItem.isAdult}
+                  type="checkbox"
+                  id="isAdult"
+                  onChange={(e) => { setNewItem((prev) => { return { ...prev, isAdult: e.target.checked } }) }} />
                 <label htmlFor='isAdult'>For Adults</label>
               </div>
 
               <label htmlFor="">Avaliable Sizes</label>
               <div className="check">
-                <input checked={isSelectedSize('XS')} value='xs' type="checkbox" id="xs" onChange={(e) => { toggleSelectedSizesHandler("XS") }} />
+                <input
+                  checked={isSelectedSize('XS')}
+                  value='xs'
+                  type="checkbox"
+                  id="xs"
+                  onChange={(e) => { toggleSelectedSizesHandler("XS") }} />
                 <label htmlFor='xs'>XS</label>
               </div>
               <div className="check">
-                <input checked={isSelectedSize('S')} value='s' type="checkbox" id="s" onChange={(e) => { toggleSelectedSizesHandler("S") }} />
+                <input
+                  checked={isSelectedSize('S')}
+                  value='s'
+                  type="checkbox"
+                  id="s"
+                  onChange={(e) => { toggleSelectedSizesHandler("S") }} />
                 <label htmlFor='s'>S</label>
               </div>
               <div className="check">
-                <input checked={isSelectedSize('M')} value='m' type="checkbox" id="m" onChange={(e) => { toggleSelectedSizesHandler("M") }} />
+                <input
+                  checked={isSelectedSize('M')}
+                  value='m'
+                  type="checkbox"
+                  id="m"
+                  onChange={(e) => { toggleSelectedSizesHandler("M") }} />
                 <label htmlFor='m'>M</label>
               </div>
               <div className="check">
-                <input checked={isSelectedSize('L')} value='l' type="checkbox" id="l" onChange={(e) => { toggleSelectedSizesHandler("L") }} />
+                <input
+                  checked={isSelectedSize('L')}
+                  value='l'
+                  type="checkbox"
+                  id="l"
+                  onChange={(e) => { toggleSelectedSizesHandler("L") }} />
                 <label htmlFor='l'>L</label>
               </div>
               <div className="check">
-                <input checked={isSelectedSize('XL')} value='xl' type="checkbox" id="xl" onChange={(e) => { toggleSelectedSizesHandler("XL") }} />
+                <input
+                  checked={isSelectedSize('XL')}
+                  value='xl'
+                  type="checkbox"
+                  id="xl"
+                  onChange={(e) => { toggleSelectedSizesHandler("XL") }} />
                 <label htmlFor='xl'>XL</label>
               </div>
               <div className="check add-item-input">
-                <input checked={isSelectedSize('XXL')} value='xxl' type="checkbox" id="xxl" onChange={(e) => { toggleSelectedSizesHandler("XXL") }} />
+                <input
+                  checked={isSelectedSize('XXL')}
+                  value='xxl'
+                  type="checkbox"
+                  id="xxl"
+                  onChange={(e) => { toggleSelectedSizesHandler("XXL") }} />
                 <label htmlFor='xxl'>XXL</label>
               </div>
 

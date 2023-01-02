@@ -124,7 +124,8 @@ export default function EditCollection() {
           formData.append("images", uploadImage);
           setLoading(true);
           try {
-            const { data } = typeof uploadImage === "object" && await collectionServices.uploadImageCollection(params.id, formData)
+            const { data } = typeof uploadImage === "object"
+              && await collectionServices.uploadImageCollection(params.id, formData)
             if (data.success && data.status === 200) {
               setLoading(false);
             }
@@ -265,7 +266,8 @@ export default function EditCollection() {
             <div className="main-image-label">
               {uploadImage && (
                 <img
-                  src={typeof uploadImage === "object" ? URL.createObjectURL(uploadImage) : (`https://graduation-project-23.s3.amazonaws.com/${uploadImage}`)}
+                  src={typeof uploadImage === "object" ? URL.createObjectURL(uploadImage) :
+                    (`https://graduation-project-23.s3.amazonaws.com/${uploadImage}`)}
                   alt="imag-viewer"
                   className="uploaded-img"
                   onClick={() => {
@@ -304,7 +306,13 @@ export default function EditCollection() {
               />
 
               <label>Season</label>
-              <select onChange={getNewCollectionData} selected={newCollection.season} value={newCollection.season} className='form-control add-customer-input' id="season" name="season" title='season'>
+              <select onChange={getNewCollectionData}
+                selected={newCollection.season}
+                value={newCollection.season}
+                className='form-control add-customer-input'
+                id="season"
+                name="season"
+                title='season'>
                 <option value={0} disabled>-- Season --</option>
                 <option value="Winter">Winter</option>
                 <option value="Spring">Spring</option>

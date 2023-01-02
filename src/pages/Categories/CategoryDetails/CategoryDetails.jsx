@@ -44,7 +44,8 @@ export default function CategoryDetails() {
         </div>
         <div className="col-md-4">
           <div className="image">
-            <img src={`https://graduation-project-23.s3.amazonaws.com/${category.image}`} alt="Category Image" />
+            <img src={`https://graduation-project-23.s3.amazonaws.com/${category.image}`}
+              alt="Category Image" />
           </div>
         </div>
         <div className="col-md-8">

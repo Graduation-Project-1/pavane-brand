@@ -72,7 +72,8 @@ export default function Items() {
                   <div className="item" onClick={() => navigate(`/items/${item._id}`)}>
                     {item.cover ? (
                       <div className="image">
-                        <img src={`https://graduation-project-23.s3.amazonaws.com/${item.cover}`} alt="Item Image" />
+                        <img src={`https://graduation-project-23.s3.amazonaws.com/${item.cover}`}
+                          alt="Item Image" />
                       </div>
                     ) : (
                       <div className="image">

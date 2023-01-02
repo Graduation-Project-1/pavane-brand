@@ -160,7 +160,13 @@ export default function Categories() {
       </div>
 
       <div className="form-search">
-        <input onChange={(e) => setSearchValue(e.target.value)} className='form-control w-50' type="text" name="search" id="search" placeholder='Search...' />
+        <input onChange={(e) => setSearchValue(e.target.value)}
+          className='form-control w-50'
+          type="text"
+          name="search"
+          id="search"
+          placeholder='Search...'
+        />
       </div>
 
       {isLeftClicked ? (
@@ -188,14 +194,19 @@ export default function Categories() {
                     (
                       categories.map((category, index) => {
                         return (
-                          <tr key={category._id} onClick={() => navigate(`/categories/${category._id}`)}>
+                          <tr key={category._id}
+                            onClick={() => navigate(`/categories/${category._id}`)}>
                             <td>{index + 1}</td>
                             <td>{category.name}</td>
                             {
                               categoriesArr.includes(category._id) ?
                                 <td><button disabled className='btn btn-dark'>Added</button></td>
                                 :
-                                <td><button onClick={(e) => { e.stopPropagation(); newCategoriesHandler(category._id) }} className='btn btn-warning add-btn'>Add</button></td>
+                                <td><button
+                                  onClick={(e) => { e.stopPropagation(); newCategoriesHandler(category._id) }}
+                                  className='btn btn-warning add-btn'>
+                                  Add
+                                </button></td>
                             }
                           </tr>
                         )

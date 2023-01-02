@@ -93,8 +93,14 @@ export default function MyCategories() {
       <div className="overlay-box">
         <h3>Are you sure you want to remove?</h3>
         <div className="modal-buttons">
-          <div onClick={() => setModalShowRemove(false)} className='btn btn-dark w-50'>Cancel</div>
-          <div onClick={() => { removeCategoriesHandler() }} className='delete btn btn-warning add-btn w-50'>Remove</div>
+          <div onClick={() => setModalShowRemove(false)}
+            className='btn btn-dark w-50'>
+            Cancel
+          </div>
+          <div onClick={() => { removeCategoriesHandler() }}
+            className='delete btn btn-warning add-btn w-50'>
+            Remove
+          </div>
         </div>
       </div>
     </div>}
@@ -123,10 +129,17 @@ export default function MyCategories() {
                   (
                     myCategories.map((category, index) => {
                       return (
-                        <tr key={category._id} onClick={() => navigate(`/categories/${category._id}`)}>
+                        <tr key={category._id}
+                          onClick={() => navigate(`/categories/${category._id}`)}>
                           <td>{index + 1}</td>
                           <td>{category.name}</td>
-                          <td><button onClick={(e) => { e.stopPropagation(); removeBtn(category._id) }} className='btn btn-danger'>Remove</button></td>
+                          <td>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); removeBtn(category._id) }}
+                              className='btn btn-danger'>
+                              Remove
+                            </button>
+                          </td>
                         </tr>
                       )
                     })

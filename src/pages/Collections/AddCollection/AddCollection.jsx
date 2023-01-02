@@ -275,7 +275,11 @@ export default function AddCollection() {
                 id="name"
               />
               <label>Season</label>
-              <select onChange={(e) => { setSeason(e.target.value) }} className='form-control w-100 add-collection-input' id="season" name="season" title='season'>
+              <select onChange={(e) => { setSeason(e.target.value) }}
+                className='form-control w-100 add-collection-input'
+                id="season"
+                name="season"
+                title='season'>
                 <option defaultValue={""}>-- Season --</option>
                 <option value="Winter">Winter</option>
                 <option value="Spring">Spring</option>

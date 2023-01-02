@@ -119,7 +119,9 @@ export default function EditBrand() {
           formData.append("images", uploadImage);
           setLoading(true);
           try {
-            const { data } = typeof uploadImage === "object" && await brandServices.uploadImageBrand(brandId, formData)
+            const { data } = typeof uploadImage === "object"
+              && await brandServices.uploadImageBrand(brandId, formData)
+
             if (data.success && data.status === 200) {
               setLoading(false);
             }
@@ -169,7 +171,9 @@ export default function EditBrand() {
             <div className="main-image-label">
               {uploadImage && (
                 <img
-                  src={typeof uploadImage === "object" ? URL.createObjectURL(uploadImage) : (`https://graduation-project-23.s3.amazonaws.com/${uploadImage}`)}
+                  src={typeof uploadImage === "object" ?
+                    URL.createObjectURL(uploadImage) :
+                    (`https://graduation-project-23.s3.amazonaws.com/${uploadImage}`)}
                   alt="imag-viewer"
                   className="uploaded-img"
                   onClick={() => {
