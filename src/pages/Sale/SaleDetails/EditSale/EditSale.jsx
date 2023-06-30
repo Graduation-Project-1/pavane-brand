@@ -238,8 +238,8 @@ export default function EditSale() {
     </div>
     <div className="row">
       <div className="col-md-12">
-        <div className="edit-collection-page">
-          <div className="edit-collection-card">
+        <div className="edit-brand-page">
+          <div className="edit-brand-card">
             <h3>Edit Sale</h3>
             {
               errorMessage ?
@@ -362,7 +362,7 @@ export default function EditSale() {
                 options={itemsOptions}
                 showCheckbox
               />
-              <button className='add-collection-button'>
+              <button className='add-brand-button'>
                 {loading ?
                   (<i className="fas fa-spinner fa-spin "></i>)
                   : "Edit Sale"}
