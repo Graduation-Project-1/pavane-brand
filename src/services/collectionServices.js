@@ -21,17 +21,30 @@ let collectionServices = {
     return response
   },
 
+  collectionSearch: async (search) => {
+    const response = await Axios.get(`collectionSearch?${search.length > 0 ? `&search=${search}` : ""}`)
+    return response
+  },
+
   updateCollection: async (id, obj) => {
     const response = await Axios.put(`updateCollection/${id}`, obj)
     return response
   },
-
 
   deleteCollection: async (id) => {
     const response = await Axios.delete(`deleteCollection/${id}`)
     return response
   },
 
+  addToArchive: async (id) => {
+    const response = await Axios.put(`archiveCollection/${id}`)
+    return response
+  },
+
+  removeFromArchive: async (id) => {
+    const response = await Axios.put(`disArchiveCollection/${id}`)
+    return response
+  },
 }
 
 export default collectionServices;

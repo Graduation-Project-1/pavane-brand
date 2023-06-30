@@ -1,0 +1,89 @@
+.advertisements {
+  height: 100vh;
+
+  .add-advertisement {
+    display: flex;
+    justify-content: flex-end;
+    margin: 20px;
+
+    .add-advertisement-btn {
+      background-color: #ffa300;
+      border: 1px solid #ffa300;
+      color: var(--secondaryColor);
+      padding: 8px 12px;
+      font-size: 18px;
+      border-radius: 7px;
+      transition: all 0.5s;
+
+      &:hover {
+        background-color: var(--secondaryColor);
+        border: 1px solid #ffa300;
+        color: #ffa300;
+      }
+    }
+  }
+
+  .advertisement-data {
+    display: flex;
+    justify-content: center;
+    height: 350px;
+
+    .carousel {
+      width: 50%;
+      cursor: pointer;
+
+      .carousel-inner {
+        height: 300px;
+        width: 100%;
+        background-color: #242424;
+        padding: 0;
+        margin: 0;
+        border-radius: 5px;
+
+        .carousel-item {
+          height: 300px;
+          width: 100%;
+          padding: 0;
+          margin: 0;
+
+          img {
+            width: fit-content;
+            height: 300px;
+            object-fit: cover;
+            padding: 0;
+            margin: 0;
+          }
+        }
+        .active {
+          background-color: transparent;
+        }
+      }
+      .carousel-control-prev {
+        position: absolute;
+        top: 35%;
+        left: -50px;
+        background-color: #ffa300;
+        width: 50px;
+        height: 50px;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+      }
+      .carousel-control-next {
+        position: absolute;
+        top: 35%;
+        right: -50px;
+        background-color: #ffa300;
+        width: 50px;
+        height: 50px;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+      }
+    }
+
+    .my-table {
+      text-align: center;
+      margin: 20px;
+      cursor: pointer;
+    }
+  }
+}

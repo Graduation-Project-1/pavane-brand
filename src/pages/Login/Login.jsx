@@ -1,4 +1,3 @@
-import Joi from 'joi'
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -14,7 +13,6 @@ export default function Login() {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false);
-  const [errorList, setErrorList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -31,45 +29,23 @@ export default function Login() {
     setAdminData(newAdminData)
   }
 
-  function loginValidation(adminData) {
-    const schema = Joi.object({
-      email: Joi.string()
-        .email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
-        .required(),
-      password: Joi.string().required().messages({
-        "string.base": "please enter a valid password",
-        "any.required": "password must be entered",
-        "string.empty": "password cannot be empty"
-      })
-    });
-    return schema.validate(adminData, { abortEarly: false });
-  }
-
   async function loginHandler(e) {
     e.preventDefault();
-    setErrorList([]);
-    let validationResult = loginValidation(adminData);
     setLoading(true);
-    if (validationResult.error) {
-      setLoading(false);
-      setErrorList(validationResult.error.details);
-    } else {
-      setLoading(true);
-      try {
-        const { data } = await authServices.login(adminData)
-        if (data.message === "Success") {
-          setLoading(false);
-          dispatch(
-            authActions.login({
-              AdminToken: data.token
-            })
-          );
-          navigate("/");
-        }
-      } catch (error) {
+    try {
+      const { data } = await authServices.login(adminData)
+      if (data?.message === "Success") {
         setLoading(false);
-        setErrorMessage(error.response.data.message);
+        dispatch(
+          authActions.login({
+            AdminToken: data.token
+          })
+        );
+        navigate("/");
       }
+    } catch (error) {
+      setLoading(false);
+      setErrorMessage(error?.response?.data?.message);
     }
   };
 
@@ -86,17 +62,7 @@ export default function Login() {
                   {errorMessage}
                 </div>) : ""
             }
-            {
-              errorList.map((err, index) => {
-                return (
-                  <div key={index} className="alert alert-danger myalert">
-                    {err.message}
-                  </div>
-                )
-              })
-            }
             <form onSubmit={loginHandler}>
-
               <label htmlFor="email">Email</label>
               <input
                 onChange={getAdminData}

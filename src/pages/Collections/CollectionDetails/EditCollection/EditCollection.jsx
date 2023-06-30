@@ -1,10 +1,11 @@
-import Joi from 'joi'
 import Multiselect from 'multiselect-react-dropdown'
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import categoryServices from '../../../../services/categoryServices'
 import collectionServices from '../../../../services/collectionServices'
 import itemServices from '../../../../services/itemServices'
+import toastPopup from '../../../../helpers/toastPopup'
+import imageEndPoint from '../../../../services/imagesEndPoint'
 import './EditCollection.scss'
 
 export default function EditCollection() {
@@ -13,17 +14,17 @@ export default function EditCollection() {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false);
-  const [errorList, setErrorList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadImage, setUploadImage] = useState(null);
   const [categories, setCategories] = useState([])
-  const [items, setItems] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
+  const [items, setItems] = useState([])
   const [selectedItems, setSelectedItems] = useState([])
 
   const [oldCollection, setOldCollection] = useState({
     name: "",
     season: "",
+    discountRate: 0,
     date: "",
     categoryList: "",
     itemsList: ""
@@ -32,6 +33,7 @@ export default function EditCollection() {
   const [newCollection, setNewCollection] = useState({
     name: "",
     season: "",
+    discountRate: 0,
     date: "",
     categoryList: "",
     itemsList: ""
@@ -51,13 +53,14 @@ export default function EditCollection() {
   async function getCollectionByIdHandler() {
     setLoading(true)
     try {
-      const { data } = await collectionServices.getCollectionById(params.id);
+      const { data } = await collectionServices.getCollectionById(params?.id);
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
         setOldCollection({
           name: data?.Data?.name,
           season: data?.Data?.season,
+          discountRate: data?.Data?.discountRate,
           date: data?.Data?.date,
           categoryList: data?.Data?.categoryList.map((cat) => { return cat._id }),
           itemsList: data?.Data?.itemsList.map((item) => { return item._id }),
@@ -65,6 +68,7 @@ export default function EditCollection() {
         setNewCollection({
           name: data?.Data?.name,
           season: data?.Data?.season,
+          discountRate: data?.Data?.discountRate,
           date: data?.Data?.date,
           categoryList: data?.Data?.categoryList.map((cat) => { return cat._id }),
           itemsList: data?.Data?.itemsList.map((item) => { return item._id }),
@@ -72,11 +76,10 @@ export default function EditCollection() {
         setUploadImage(data?.Data?.image)
         setSelectedCategories(data?.Data?.categoryList)
         setSelectedItems(data?.Data?.itemsList)
-
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -86,59 +89,43 @@ export default function EditCollection() {
     setNewCollection(newCollectionData)
   }
 
-  function editCollectionValidation(newCollection) {
-    const schema = Joi.object({
-      name: Joi.string().required(),
-      season: Joi.string().required(),
-      date: Joi.string(),
-      categoryList: Joi.any(),
-      itemsList: Joi.any(),
-    });
-    return schema.validate(newCollection, { abortEarly: false });
-  }
-
   async function editCollectionHandler(e) {
     e.preventDefault();
-    setErrorList([]);
-    let validationResult = editCollectionValidation(newCollection);
     setLoading(true);
-    if (validationResult.error) {
-      setLoading(false);
-      setErrorList(validationResult.error.details);
-    } else {
-      setLoading(true);
-      let editedData = {};
+    let editedData = {};
 
-      Object.keys(checkUpdatedFields(newCollection, oldCollection)).forEach((key) => {
-        editedData = {
-          ...editedData,
-          [key]: newCollection[key]
-        }
-      })
+    Object.keys(checkUpdatedFields(newCollection, oldCollection)).forEach((key) => {
+      editedData = {
+        ...editedData,
+        [key]: newCollection[key]
+      }
+    })
 
-      try {
-        const { data } = await collectionServices.updateCollection(params.id, editedData)
-        if (data.success && data.status === 200) {
-          setLoading(false);
+    try {
+      const { data } = await collectionServices.updateCollection(params?.id, editedData)
+      if (data?.success && data?.status === 200) {
+        setLoading(false);
+        if (typeof (uploadImage) === 'object') {
           var formData = new FormData();
           formData.append("images", uploadImage);
           setLoading(true);
           try {
-            const { data } = typeof uploadImage === "object"
-              && await collectionServices.uploadImageCollection(params.id, formData)
-            if (data.success && data.status === 200) {
+            const { data } = typeof uploadImage === "object" &&
+              await collectionServices.uploadImageCollection(params?.id, formData)
+            if (data?.success && data?.status === 200) {
               setLoading(false);
             }
           } catch (error) {
             setLoading(false);
             setErrorMessage(error);
           }
-          navigate(`/collections/${params.id}`);
         }
-      } catch (error) {
-        setLoading(false);
-        setErrorMessage(error.response);
+        navigate(`/collections/page/${params?.pageNumber}/${params?.id}`)
+        toastPopup.success("Collection updated successfully")
       }
+    } catch (error) {
+      setLoading(false);
+      setErrorMessage(error?.response);
     }
   };
 
@@ -152,29 +139,28 @@ export default function EditCollection() {
     try {
       const { data } = await categoryServices.getAllCategories(1, 5000);
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
-        setCategories(data.Data)
+        setCategories(data?.Data)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
   async function getAllItemsHandler() {
     setLoading(true)
     try {
-      const { data } = await itemServices.getAllBrandItems(1, 5000);
+      const { data } = await itemServices.getAllBrandItems(1, 10000);
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
-        setItems(data.Data)
-        // setTotalResult(data.totalResult)
+        setItems(data?.Data)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -206,43 +192,50 @@ export default function EditCollection() {
     }
   }
 
+  let categoriesOptions = categories?.map((category) => {
+    return ({
+      name: category?.name,
+      id: category?._id
+    })
+  })
+
+  let itemsOptions = items?.map((item) => {
+    return ({
+      name: item?.name,
+      id: item?._id
+    })
+  })
+
+  let selected_categories = selectedCategories?.map((selectedCategory) => {
+    return ({
+      name: selectedCategory?.name,
+      id: selectedCategory?._id
+    })
+  })
+
+  let selected_items = selectedItems?.map((selectedItem) => {
+    return ({
+      name: selectedItem?.name,
+      id: selectedItem?._id
+    })
+  })
+
   useEffect(() => {
     getCollectionByIdHandler()
     getAllCategoriesHandler()
     getAllItemsHandler()
   }, [])
 
-  let categoriesOptions = categories.map((category) => {
-    return ({
-      name: category.name,
-      id: category._id
-    })
-  })
-
-  let itemsOptions = items.map((item) => {
-    return ({
-      name: item.name,
-      id: item._id
-    })
-  })
-
-  let selected_categories = selectedCategories.map((selectedCategory) => {
-    return ({
-      name: selectedCategory.name,
-      id: selectedCategory._id
-    })
-  })
-
-  let selected_items = selectedItems.map((selectedItem) => {
-    return ({
-      name: selectedItem.name,
-      id: selectedItem._id
-    })
-  })
-
-  let date = (newCollection.date).split('T')[0]
+  let date = (newCollection?.date)?.split('T')[0]
 
   return <>
+    <div>
+      <button className='back-edit' onClick={() => {
+        navigate(`/collections/page/${params?.pageNumber}/${params?.id}`)
+      }}>
+        <i className="fa-solid fa-arrow-left"></i>
+      </button>
+    </div>
     <div className="row">
       <div className="col-md-12">
         <div className="edit-brand-page">
@@ -254,20 +247,12 @@ export default function EditCollection() {
                   {errorMessage}
                 </div>) : ""
             }
-            {
-              errorList.map((err, index) => {
-                return (
-                  <div key={index} className="alert alert-danger myalert">
-                    {err.message}
-                  </div>
-                )
-              })
-            }
             <div className="main-image-label">
               {uploadImage && (
                 <img
-                  src={typeof uploadImage === "object" ? URL.createObjectURL(uploadImage) :
-                    (`https://graduation-project-23.s3.amazonaws.com/${uploadImage}`)}
+                  src={typeof uploadImage === "object" ?
+                    URL.createObjectURL(uploadImage) :
+                    (`${imageEndPoint}${uploadImage}`)}
                   alt="imag-viewer"
                   className="uploaded-img"
                   onClick={() => {
@@ -302,36 +287,47 @@ export default function EditCollection() {
                 type="text"
                 name="name"
                 id="name"
-                value={newCollection.name}
+                value={newCollection?.name}
               />
 
               <label>Season</label>
-              <select onChange={getNewCollectionData}
-                selected={newCollection.season}
-                value={newCollection.season}
-                className='form-control add-customer-input'
+              <select
+                onChange={(e) => {
+                  setNewCollection((prev) => {
+                    return { ...prev, season: e.target.value };
+                  });
+                }}
+                className='form-control add-brand-input'
                 id="season"
                 name="season"
-                title='season'>
-                <option value={0} disabled>-- Season --</option>
-                <option value="Winter">Winter</option>
-                <option value="Spring">Spring</option>
-                <option value="Summer">Summer</option>
-                <option value="Fall">Fall</option>
-                <option value="none">none</option>
+                title='season'
+                value={newCollection?.season}>
+                <option value=''>-- Season --</option>
+                <option value='winter'>Winter</option>
+                <option value='spring'>Spring</option>
+                <option value='summer'>Summer</option>
+                <option value='fall'>Fall</option>
               </select>
 
               <label htmlFor="date">Date</label>
-              <div className="date add-brand-input">
-                <input
-                  onChange={getNewCollectionData}
-                  type="date"
-                  name="date"
-                  id="date"
-                  className='picker'
-                  value={date}
-                />
-              </div>
+              <input
+                onChange={getNewCollectionData}
+                type="date"
+                name="date"
+                id="date"
+                className='form-control add-customer-input'
+                value={date}
+              />
+
+              <label htmlFor="name">Discount</label>
+              <input
+                onChange={getNewCollectionData}
+                className='form-control add-collection-input'
+                type="number"
+                name="discountRate"
+                id="discount"
+                value={newCollection?.discountRate}
+              />
 
               <p className='select-categories'>Select Categories</p>
               <Multiselect
@@ -339,11 +335,11 @@ export default function EditCollection() {
                 selectedValues={selected_categories}
                 onKeyPressFn={function noRefCheck() { }}
                 onRemove={function noRefCheck(selectedList, selectedItem) {
-                  toggleSelectedCategoriesHandler(selectedItem.id)
+                  toggleSelectedCategoriesHandler(selectedItem?.id)
                 }}
                 onSearch={function noRefCheck() { }}
                 onSelect={function noRefCheck(selectedList, selectedItem) {
-                  toggleSelectedCategoriesHandler(selectedItem.id)
+                  toggleSelectedCategoriesHandler(selectedItem?.id)
                 }}
                 options={categoriesOptions}
                 showCheckbox
@@ -355,15 +351,16 @@ export default function EditCollection() {
                 selectedValues={selected_items}
                 onKeyPressFn={function noRefCheck() { }}
                 onRemove={function noRefCheck(selectedList, selectedItem) {
-                  toggleSelectedItemsHandler(selectedItem.id)
+                  toggleSelectedItemsHandler(selectedItem?.id)
                 }}
                 onSearch={function noRefCheck() { }}
                 onSelect={function noRefCheck(selectedList, selectedItem) {
-                  toggleSelectedItemsHandler(selectedItem.id)
+                  toggleSelectedItemsHandler(selectedItem?.id)
                 }}
                 options={itemsOptions}
                 showCheckbox
               />
+
               <button className='add-brand-button'>
                 {loading ?
                   (<i className="fas fa-spinner fa-spin "></i>)

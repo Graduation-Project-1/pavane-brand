@@ -1,10 +1,11 @@
-import Joi from 'joi';
 import Multiselect from 'multiselect-react-dropdown';
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import brandServices from '../../../services/brandServices';
 import categoryServices from '../../../services/categoryServices';
 import itemServices from '../../../services/itemServices';
+import toastPopup from '../../../helpers/toastPopup';
+import ImagesUpload from '../../../components/ImagesUpload/ImagesUpload';
 import './AddItem.scss'
 
 export default function AddItem() {
@@ -12,41 +13,28 @@ export default function AddItem() {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false);
-  const [errorList, setErrorList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [uploadImage, setUploadImage] = useState(null);
-  const [uploadImages, setUploadImages] = useState({});
+  const [uploadCover, setUploadCover] = useState(null);
+  const [uploadImages, setUploadImages] = useState([]);
   const [gender, setGender] = useState("male");
   const [isAdult, setIsAdult] = useState(false);
-  const [xsSize, setXsSize] = useState(false);
-  const [sSize, setSSize] = useState(false);
-  const [mSize, setMSize] = useState(false);
-  const [lSize, setLSize] = useState(false);
-  const [xlSize, setXLSize] = useState(false);
-  const [xxlSize, setXXLSize] = useState(false);
   const [redColor, setRedColor] = useState(false);
   const [greenColor, setGreenColor] = useState(false);
   const [blueColor, setBlueColor] = useState(false);
   const [blackColor, setBlackColor] = useState(false);
   const [categories, setCategories] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
+  const [selectedSizes, setSelectedSizes] = useState([])
   const [brandId, setBrandId] = useState('')
+
+  let sizesArr = ["XS", "S", "M", "L", "XL", "XXL"]
 
   const [newItem, setNewItem] = useState({
     name: "",
     price: 0,
-    description: ""
+    description: "",
+    discountRate: ""
   })
-
-  const ref = useRef();
-  const refs = useRef();
-  const imageUploader = (e) => {
-    ref.current.click();
-  };
-
-  const imagesUploader = (e) => {
-    refs.current.click();
-  };
 
   function getNewItemData(e) {
     let newItemData = { ...newItem }
@@ -54,33 +42,18 @@ export default function AddItem() {
     setNewItem(newItemData)
   }
 
-  async function getBrandByIdHandler() {
-    setLoading(true)
-    try {
-      const { data } = await brandServices.getBrandById();
-      setLoading(true)
-      if (data.success && data.status === 200) {
-        setLoading(false);
-        setBrandId(data.Data._id)
-      }
-    } catch (e) {
-      setLoading(false);
-      setErrorMessage(e.response.data.message);
-    }
-  }
-
   async function getAllCategoriesHandler() {
     setLoading(true)
     try {
       const { data } = await categoryServices.getAllCategories(1, 5000);
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
-        setCategories(data.Data)
+        setCategories(data?.Data)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -97,141 +70,152 @@ export default function AddItem() {
   function getFinalCategories() {
     let finalBrandCategories = []
     selectedCategories.forEach((selectedCategory) => {
-      categories.filter(category => category._id === selectedCategory).map((category) => {
-        finalBrandCategories.push(category._id)
+      categories.filter(category => category?._id === selectedCategory).map((category) => {
+        finalBrandCategories.push(category?._id)
       })
     })
 
     return finalBrandCategories
   }
 
-  function addItemValidation(newItem) {
-    const schema = Joi.object({
-      name: Joi.string()
-        .pattern(/^[a-zA-Z &_\-'"\\|,.\/]*$/)
-        .min(3)
-        .max(30)
-        .required(),
-      price: Joi.number().positive().required(),
-      description: Joi.string().pattern(/^[a-zA-Z &_\-'"\\|,.\/]*$/).min(3).max(50).required()
-    });
-    return schema.validate(newItem, { abortEarly: false });
+  let categoriesOptions = categories?.map((category) => {
+    return ({
+      name: category?.name,
+      id: category?._id
+    })
+  })
+
+  function toggleSelectedSizesHandler(size) {
+    if (selectedSizes.includes(size)) {
+      let oldSelectedSizes = selectedSizes
+      let newSelectedSizes = oldSelectedSizes.filter((singleSize) => { return singleSize !== size?.name })
+      setSelectedSizes(newSelectedSizes)
+    } else {
+      setSelectedSizes((prev) => { return [...prev, size?.name] })
+    }
+  }
+
+  function getFinalSizes() {
+    let finalSizes = []
+    selectedSizes.forEach((selectedSize) => {
+      sizesArr.filter(size => size === selectedSize).map((size) => {
+        finalSizes.push(size)
+      })
+    })
+
+    return finalSizes
+  }
+
+  let sizesOptions = sizesArr?.map((size) => {
+    return ({
+      name: size
+    })
+  })
+
+  async function getBrandHandler() {
+    setLoading(true)
+    try {
+      const { data } = await brandServices.getBrand();
+      setLoading(true)
+      if (data?.success && data?.status === 200) {
+        setLoading(false);
+        setBrandId(data?.Data?._id)
+      }
+    } catch (e) {
+      setLoading(false);
+      setErrorMessage(e.response.data.message);
+    }
   }
 
   async function addItemHandler(e) {
     e.preventDefault();
-    setErrorList([]);
-    let validationResult = addItemValidation(newItem);
     setLoading(true);
-    if (validationResult.error) {
-      setLoading(false);
-      setErrorList(validationResult.error.details);
-    } else {
-      setLoading(true);
-      let sizes = []
-      if (xsSize) {
-        sizes.push("XS")
-      }
-      if (sSize) {
-        sizes.push("S")
-      }
-      if (mSize) {
-        sizes.push("M")
-      }
-      if (lSize) {
-        sizes.push("L")
-      }
-      if (xlSize) {
-        sizes.push("XL")
-      }
-      if (xxlSize) {
-        sizes.push("XXL")
-      }
 
-      let colors = []
-      if (redColor) {
-        colors.push("red")
-      }
-      if (greenColor) {
-        colors.push("green")
-      }
-      if (blueColor) {
-        colors.push("blue")
-      }
-      if (blackColor) {
-        colors.push("black")
-      }
-
-      try {
-        let itemData = {
-          name: newItem.name,
-          price: newItem.price,
-          description: newItem.description,
-          gender: gender,
-          isAdult: isAdult,
-          sizes: sizes,
-          colors: colors,
-          brandId: brandId,
-          categoryList: getFinalCategories()
-        }
-
-        const { data } = await itemServices.addItem(itemData)
-        if (data.success && data.message === "ItemAdded") {
-          setLoading(false);
-          let itemID = data.Data._id
-          var formData = new FormData();
-          formData.append("images", uploadImage);
-          setLoading(true)
-          try {
-            const { data } = await itemServices.uploadItemCover(itemID, formData)
-            setLoading(true)
-            if (data.success && data.status === 200) {
-              setLoading(false);
-            }
-          } catch (error) {
-            setLoading(false);
-            setErrorMessage(error);
-          }
-
-          // var imagesFormData = new FormData();
-          // uploadImages.forEach((file, i) => {
-          //   console.log("ok", uploadImages);
-          //   imagesFormData.append(`images${i}`, file);
-          // });
-
-          // try {
-          //   const { data } = await itemServices.uploadImagesItem(itemID, imagesFormData)
-          //   console.log(data);
-          //   setLoading(true)
-          //   if (data.success && data.status === 200) {
-          //     setLoading(false);
-          //   }
-          // } catch (error) {
-          //   setLoading(false);
-          //   setErrorMessage(error);
-          // }
-          navigate("/items");
-        }
-      } catch (error) {
-        setLoading(false);
-        setErrorMessage(error.response);
-      }
+    let colors = []
+    if (redColor) {
+      colors.push("red")
     }
+    if (greenColor) {
+      colors.push("green")
+    }
+    if (blueColor) {
+      colors.push("blue")
+    }
+    if (blackColor) {
+      colors.push("black")
+    }
+
+    try {
+      let itemData = {
+        name: newItem?.name,
+        price: newItem?.price,
+        description: newItem?.description,
+        gender: gender,
+        isAdult: isAdult,
+        discountRate: newItem?.discountRate,
+        sizes: getFinalSizes(),
+        colors: colors,
+        brandId: brandId,
+        categoryList: getFinalCategories()
+      }
+
+      const { data } = await itemServices.addItem(itemData)
+      if (data?.success && data?.message === "ItemAdded") {
+        setLoading(false);
+        let itemID = data?.Data?._id
+        var formData = new FormData();
+        formData.append("images", uploadCover);
+        setLoading(true)
+        try {
+          const { data } = await itemServices.uploadItemCover(itemID, formData)
+          setLoading(true)
+          if (data?.success && data?.status === 200) {
+            setLoading(false);
+          }
+        } catch (error) {
+          setLoading(false);
+          setErrorMessage(error);
+        }
+        var imagesFormData = new FormData();
+        uploadImages.forEach((image) => {
+          imagesFormData.append('images', image.file);
+        });
+        setLoading(true)
+        try {
+          const { data } = await itemServices.uploadItemImages(itemID, imagesFormData)
+          setLoading(true)
+          if (data?.success && data?.status === 200) {
+            setLoading(false);
+          }
+        } catch (error) {
+          setLoading(false);
+          setErrorMessage(error);
+        }
+        navigate("/items");
+        toastPopup.success("Item added successfully")
+      }
+    } catch (error) {
+      setLoading(false);
+      setErrorMessage(error.response);
+    }
+  };
+
+  const ref = useRef();
+  const coverUploader = (e) => {
+    ref.current.click();
   };
 
   useEffect(() => {
     getAllCategoriesHandler()
-    getBrandByIdHandler()
+    getBrandHandler()
   }, [])
 
-  let categoriesOptions = categories.map((category) => {
-    return ({
-      name: category.name,
-      id: category._id
-    })
-  })
-
   return <>
+    <div>
+      <button className='back-edit' onClick={() => { navigate(`/items`) }}>
+        <i className="fa-solid fa-arrow-left"></i>
+      </button>
+    </div>
     <div className="row">
       <div className="col-md-12">
         <div className="add-item-page">
@@ -243,24 +227,15 @@ export default function AddItem() {
                   {errorMessage}
                 </div>) : ""
             }
-            {
-              errorList.map((err, index) => {
-                return (
-                  <div key={index} className="alert alert-danger myalert">
-                    {err.message}
-                  </div>
-                )
-              })
-            }
-            <div className="main-image-label">
-              {uploadImage && (
+            <div className="main-cover-label">
+              {uploadCover && (
                 <img
-                  src={uploadImage ? URL.createObjectURL(uploadImage) : null}
+                  src={uploadCover ? URL.createObjectURL(uploadCover) : null}
                   alt="imag-viewer"
                   className="uploaded-img"
                   onClick={() => {
                     window.open(
-                      uploadImage ? URL.createObjectURL(uploadImage) : null
+                      uploadCover ? URL.createObjectURL(uploadCover) : null
                     );
                   }}
                 />
@@ -271,49 +246,25 @@ export default function AddItem() {
                 name="upload-img"
                 ref={ref}
                 onChange={(e) => {
-                  setUploadImage(e.target.files[0]);
+                  setUploadCover(e.target.files[0]);
                 }}
               />
               <label
                 className="main-label-image"
-                onClick={imageUploader}
+                onClick={coverUploader}
                 htmlFor="upload-img"
               >
                 Add Cover Image
               </label>
             </div>
-            {/* <div className="main-image-label">
-              {uploadImages.length > 0 && (
-                <img
-                  src={`https://html.sammy-codes.com/images/background.jpg`}
-                  alt="imag-viewer"
-                  className="uploaded-img"
-                // onClick={() => {
-                //   window.open(
-                //     uploadImage ? URL.createObjectURL(uploadImage) : null
-                //   );
-                // }}
-                />
-              )}
-              <input
-                className="main-input-image"
-                type="file"
-                name="upload-img"
-                ref={refs}
-                onChange={(e) => {
-                  setUploadImages(e.target.files);
-                  console.log(e.target.files);
-                }}
-                multiple
-              />
-              <label
-                className="main-label-image"
-                onClick={imagesUploader}
-                htmlFor="upload-img"
-              >
-                Add Cover Image
-              </label>
-            </div> */}
+
+            <ImagesUpload
+              label='item images'
+              type="upload"
+              uploadedImagesList={uploadImages}
+              setUploadedImagesList={setUploadImages}
+            />
+
             <form onSubmit={addItemHandler}>
               <label htmlFor="name">Name</label>
               <input
@@ -338,6 +289,14 @@ export default function AddItem() {
                 type="number"
                 name="price"
                 id="price"
+              />
+              <label htmlFor="name">Discount</label>
+              <input
+                onChange={getNewItemData}
+                className='form-control add-item-input'
+                type="number"
+                name="discountRate"
+                id="discount"
               />
               <label htmlFor="">Gender</label>
               <div className="wrapper add-item-input">
@@ -369,31 +328,21 @@ export default function AddItem() {
                 <input type="checkbox" id="isAdult" onChange={(e) => { setIsAdult(e.target.checked) }} />
                 <label htmlFor='isAdult'>For Adults</label>
               </div>
+
               <label htmlFor="">Avaliable Sizes</label>
-              <div className="check">
-                <input value='xs' type="checkbox" id="xs" onChange={(e) => { setXsSize(e.target.checked) }} />
-                <label htmlFor='xs'>XS</label>
-              </div>
-              <div className="check">
-                <input value='s' type="checkbox" id="s" onChange={(e) => { setSSize(e.target.checked) }} />
-                <label htmlFor='s'>S</label>
-              </div>
-              <div className="check">
-                <input value='m' type="checkbox" id="m" onChange={(e) => { setMSize(e.target.checked) }} />
-                <label htmlFor='m'>M</label>
-              </div>
-              <div className="check">
-                <input value='l' type="checkbox" id="l" onChange={(e) => { setLSize(e.target.checked) }} />
-                <label htmlFor='l'>L</label>
-              </div>
-              <div className="check">
-                <input value='xl' type="checkbox" id="xl" onChange={(e) => { setXLSize(e.target.checked) }} />
-                <label htmlFor='xl'>XL</label>
-              </div>
-              <div className="check add-item-input">
-                <input value='xxl' type="checkbox" id="xxl" onChange={(e) => { setXXLSize(e.target.checked) }} />
-                <label htmlFor='xxl'>XXL</label>
-              </div>
+              <Multiselect
+                displayValue="name"
+                onKeyPressFn={function noRefCheck() { }}
+                onRemove={function noRefCheck(selectedList, selectedItem) {
+                  toggleSelectedSizesHandler(selectedItem)
+                }}
+                onSearch={function noRefCheck() { }}
+                onSelect={function noRefCheck(selectedList, selectedItem) {
+                  toggleSelectedSizesHandler(selectedItem)
+                }}
+                options={sizesOptions}
+                showCheckbox
+              />
 
               <label htmlFor="">Avaliable Colors</label>
               <div className="check">

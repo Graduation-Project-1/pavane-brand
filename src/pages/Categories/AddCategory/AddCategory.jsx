@@ -2,6 +2,7 @@ import Joi from 'joi';
 import React, { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import categoryServices from '../../../services/categoryServices';
+import toastPopup from '../../../helpers/toastPopup';
 import './AddCategory.scss'
 
 export default function AddCategory() {
@@ -31,7 +32,7 @@ export default function AddCategory() {
   function addCategoryValidation(newCategory) {
     const schema = Joi.object({
       name: Joi.string()
-        .pattern(/^[a-zA-Z &_\-'"\\|,.\/]*$/)
+        .pattern(/^[a-zA-Z0-9 &_\-'"\\|,.\/]*$/)
         .min(3)
         .max(30)
         .required()
@@ -44,26 +45,26 @@ export default function AddCategory() {
     setErrorList([]);
     let validationResult = addCategoryValidation(newCategory);
     setLoading(true);
-    if (validationResult.error) {
+    if (validationResult?.error) {
       setLoading(false);
-      setErrorList(validationResult.error.details);
+      setErrorList(validationResult?.error?.details);
     } else {
       setLoading(true);
       try {
         let categoryData = {
-          name: newCategory.name
+          name: newCategory?.name
         }
         const { data } = await categoryServices.addCategory(categoryData)
-        if (data.success && data.message === "categoryAdded") {
+        if (data?.success && data?.message === "categoryAdded") {
           setLoading(false);
-          let categoryID = data.Data._id
+          let categoryID = data?.Data?._id
           var formData = new FormData();
           formData.append("images", uploadImage);
           setLoading(true)
           try {
             const { data } = await categoryServices.uploadImageCategory(categoryID, formData)
             setLoading(true)
-            if (data.success && data.status === 200) {
+            if (data?.success && data?.status === 200) {
               setLoading(false);
             }
           } catch (error) {
@@ -71,15 +72,21 @@ export default function AddCategory() {
             setErrorMessage(error);
           }
           navigate("/categories");
+          toastPopup.success("Category added successfully")
         }
       } catch (error) {
         setLoading(false);
-        setErrorMessage(error.response.data.message);
+        setErrorMessage(error?.response?.data?.message);
       }
     }
   };
 
   return <>
+    <div>
+      <button className='back-edit' onClick={() => { navigate(`/categories`) }}>
+        <i className="fa-solid fa-arrow-left"></i>
+      </button>
+    </div>
     <div className="row">
       <div className="col-md-12">
         <div className="add-category-page">
@@ -92,10 +99,10 @@ export default function AddCategory() {
                 </div>) : ""
             }
             {
-              errorList.map((err, index) => {
+              errorList?.map((err, index) => {
                 return (
                   <div key={index} className="alert alert-danger myalert">
-                    {err.message}
+                    {err?.message}
                   </div>
                 )
               })

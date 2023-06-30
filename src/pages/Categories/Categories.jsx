@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import OverlayLoading from '../../components/OverlayLoading/OverlayLoading'
 import brandServices from '../../services/brandServices'
 import categoryServices from '../../services/categoryServices'
 import Pagination from "react-js-pagination";
-import './Categories.scss'
 import MyCategories from './MyCategories'
+import './Categories.scss'
 
 export default function Categories() {
 
   const navigate = useNavigate()
+  const params = useParams()
 
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState([])
@@ -17,59 +18,62 @@ export default function Categories() {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLeftClicked, setIsLeftClicked] = useState(true);
   const [isRightClicked, setIsRightClicked] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(params?.pageNumber ? parseInt(params?.pageNumber) : 1)
   const [postPerPage, setPostPerPage] = useState(10)
   const [totalResult, setTotalResult] = useState(0)
   const [searchValue, setSearchValue] = useState('')
+  const [hidePagination, setHidePagination] = useState(false)
 
   let categoriesArr = []
 
   function handlePageChange(pageNumber) {
+    navigate(`/categories/page/${pageNumber}`)
     setCurrentPage(pageNumber)
   }
 
-  async function getAllCategoriesHandler(currentPage) {
+  async function getAllCategoriesHandler() {
     setLoading(true)
     try {
-      const { data } = await categoryServices.getAllCategories(currentPage);
+      const { data } = await categoryServices.getAllCategories(params?.pageNumber);
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
-        setCategories(data.Data)
-        setTotalResult(data.totalResult)
+        setCategories(data?.Data)
+        setTotalResult(data?.totalResult)
+        setHidePagination(false)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
   async function searchCategoryByName(searchValue) {
     try {
-      const { data } = await categoryServices.categorySearch(searchValue, 1, 5000)
-
-      if (data.success && data.status === 200) {
-        setCategories(data.Data)
-        setTotalResult(data.totalResult)
+      const { data } = await categoryServices.categorySearch(searchValue)
+      if (data?.success && data?.status === 200) {
+        setCategories(data?.Data)
+        setTotalResult(data?.totalResult)
+        setHidePagination(true)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
-  async function getBrandByIdHandler() {
+  async function getBrandHandler() {
     setLoading(true)
     try {
-      const { data } = await brandServices.getBrandById();
+      const { data } = await brandServices.getBrand();
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false)
-        setMyCategories(data.Data.categoryList)
+        setMyCategories(data?.Data?.categoryList)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -77,52 +81,56 @@ export default function Categories() {
     setIsLeftClicked(true)
     setIsRightClicked(false)
     getAllCategoriesHandler()
-    getBrandByIdHandler()
+    getBrandHandler()
   }
 
   function toggleRight() {
     setIsLeftClicked(false)
     setIsRightClicked(true)
-    getBrandByIdHandler()
+    getBrandHandler()
     getAllCategoriesHandler()
   }
 
   async function newCategoriesHandler(categoryId) {
     let categories = []
-    myCategories.map((category) => {
+    myCategories?.map((category) => {
       return (
-        categories.push(category._id)
+        categories?.push(category?._id)
       )
     })
-    categories.push(categoryId)
+    categories?.push(categoryId)
     try {
       const { data } = await brandServices.updateProfileBrand({ categoryList: categories })
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
-        getBrandByIdHandler()
+        getBrandHandler()
       }
     } catch (error) {
       setLoading(false);
-      setErrorMessage(error.response);
+      setErrorMessage(error?.response);
     }
   }
 
   useEffect(() => {
     getAllCategoriesHandler()
-    getBrandByIdHandler()
+    getBrandHandler()
   }, [])
 
   useEffect(() => {
-    getAllCategoriesHandler(currentPage)
-  }, [currentPage])
+    getAllCategoriesHandler(params?.pageNumber)
+  }, [params?.pageNumber])
 
   useEffect(() => {
-    searchCategoryByName(searchValue)
+    if (searchValue?.length > 0) {
+      searchCategoryByName(searchValue)
+    } else {
+      getAllCategoriesHandler(params?.pageNumber)
+    }
   }, [searchValue])
 
-  myCategories.map((category) => {
+  myCategories?.map((category) => {
     return (
-      categoriesArr.push(category._id)
+      categoriesArr?.push(category?._id)
     )
   })
 
@@ -159,7 +167,7 @@ export default function Categories() {
         </div>
       </div>
 
-      <div className="form-search">
+      {isLeftClicked && <div className="form-search">
         <input onChange={(e) => setSearchValue(e.target.value)}
           className='form-control w-50'
           type="text"
@@ -167,7 +175,7 @@ export default function Categories() {
           id="search"
           placeholder='Search...'
         />
-      </div>
+      </div>}
 
       {isLeftClicked ? (
         <div className="row">
@@ -192,18 +200,18 @@ export default function Categories() {
                 <tbody>
                   {loading ? (<OverlayLoading />) :
                     (
-                      categories.map((category, index) => {
+                      categories?.map((category, index) => {
                         return (
-                          <tr key={category._id}
-                            onClick={() => navigate(`/categories/${category._id}`)}>
+                          <tr key={category?._id}
+                            onClick={() => navigate(`/categories/page/${params?.pageNumber ? params?.pageNumber : 1}/${category?._id}`)}>
                             <td>{index + 1}</td>
-                            <td>{category.name}</td>
+                            <td>{category?.name}</td>
                             {
-                              categoriesArr.includes(category._id) ?
+                              categoriesArr?.includes(category?._id) ?
                                 <td><button disabled className='btn btn-dark'>Added</button></td>
                                 :
                                 <td><button
-                                  onClick={(e) => { e.stopPropagation(); newCategoriesHandler(category._id) }}
+                                  onClick={(e) => { e.stopPropagation(); newCategoriesHandler(category?._id) }}
                                   className='btn btn-warning add-btn'>
                                   Add
                                 </button></td>
@@ -216,7 +224,7 @@ export default function Categories() {
               </table>
             </div>
           </div>
-          <div className='pagination-nav'>
+          {!hidePagination && <div className='pagination-nav'>
             <Pagination
               activePage={currentPage}
               itemsCountPerPage={postPerPage}
@@ -226,7 +234,7 @@ export default function Categories() {
               itemClass="page-item"
               linkClass="page-link"
             />
-          </div>
+          </div>}
         </div>
       ) : ""}
       {isRightClicked ? (

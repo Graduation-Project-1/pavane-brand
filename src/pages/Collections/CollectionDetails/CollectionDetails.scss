@@ -58,3 +58,43 @@
 .data-data {
   background-color: rgb(237, 237, 237);
 }
+
+.cat-items-style {
+  background-color: #2424247a;
+  color: #242424;
+  font-weight: bold;
+  text-align: center;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  p {
+    padding: 15px 0;
+    margin: 0;
+  }
+}
+
+.back {
+  background-color: var(--mainColor);
+  padding: 5px 10px;
+  margin: 10px;
+  border: 1px solid var(--mainColor);
+  border-radius: 3px;
+  transition: all 0.5s;
+
+  &:hover {
+    background-color: var(--secondaryColor);
+    border: 1px solid var(--mainColor);
+  }
+
+  &:hover i {
+    color: var(--mainColor);
+    font-size: 18px;
+  }
+
+  i {
+    color: #fff;
+    font-size: 18px;
+  }
+}

@@ -21,8 +21,8 @@ let categoryServices = {
     return response
   },
 
-  categorySearch: async (search, page = 1, size = 10) => {
-    const response = await Axios.get(`categorySearch?search=${search}&page=${page}&size=${size}`)
+  categorySearch: async (search) => {
+    const response = await Axios.get(`categorySearch?search=${search}`)
     return response
   },
 }

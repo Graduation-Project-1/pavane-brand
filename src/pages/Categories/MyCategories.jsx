@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Pagination from 'react-js-pagination';
 import { useNavigate } from 'react-router-dom';
 import OverlayLoading from '../../components/OverlayLoading/OverlayLoading';
 import brandServices from '../../services/brandServices';
@@ -15,27 +14,19 @@ export default function MyCategories() {
   const [errorMessage, setErrorMessage] = useState("");
   const [modalShowRemove, setModalShowRemove] = useState(false)
   const [newCategoryId, setNewCategoryId] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
-  const [postPerPage, setPostPerPage] = useState(10)
-  const [totalResult, setTotalResult] = useState(0)
 
-  function handlePageChange(pageNumber) {
-    setCurrentPage(pageNumber)
-  }
-
-  async function getBrandByIdHandler(currentPage) {
+  async function getBrandHandler() {
     setLoading(true)
     try {
-      const { data } = await brandServices.getBrandById(currentPage);
+      const { data } = await brandServices.getBrand();
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false)
-        setMyCategories(data.Data.categoryList)
-        setTotalResult(data.Data.categoryList.length)
+        setMyCategories(data?.Data?.categoryList)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -44,12 +35,12 @@ export default function MyCategories() {
     try {
       const { data } = await categoryServices.getAllCategories();
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -60,32 +51,32 @@ export default function MyCategories() {
 
   async function removeCategoriesHandler() {
     let categoriesObj = myCategories.filter((category) => {
-      return category._id !== newCategoryId
+      return category?._id !== newCategoryId
     })
 
     let categories = []
-    categoriesObj.map((category) => {
+    categoriesObj?.map((category) => {
       return (
-        categories.push(category._id)
+        categories?.push(category?._id)
       )
     })
     try {
-      const { data } = await brandServices.updateProfileBrand({ categoryList: categories })
-      if (data.success && data.status === 200) {
+      const { data } = await brandServices?.updateProfileBrand({ categoryList: categories })
+      if (data?.success && data?.status === 200) {
         setLoading(false);
         setModalShowRemove(false)
         getAllCategoriesHandler()
-        getBrandByIdHandler(currentPage)
+        getBrandHandler()
       }
     } catch (error) {
       setLoading(false);
-      setErrorMessage(error.response);
+      setErrorMessage(error?.response);
     }
   }
 
   useEffect(() => {
-    getBrandByIdHandler(currentPage)
-  }, [currentPage])
+    getBrandHandler()
+  }, [])
 
   return <>
 
@@ -98,7 +89,7 @@ export default function MyCategories() {
             Cancel
           </div>
           <div onClick={() => { removeCategoriesHandler() }}
-            className='delete btn btn-warning add-btn w-50'>
+            className='delete btn btn-danger w-50'>
             Remove
           </div>
         </div>
@@ -127,15 +118,15 @@ export default function MyCategories() {
               <tbody>
                 {loading ? (<OverlayLoading />) :
                   (
-                    myCategories.map((category, index) => {
+                    myCategories?.map((category, index) => {
                       return (
-                        <tr key={category._id}
-                          onClick={() => navigate(`/categories/${category._id}`)}>
+                        <tr key={category?._id}
+                          onClick={() => navigate(`/categories/${category?._id}`)}>
                           <td>{index + 1}</td>
-                          <td>{category.name}</td>
+                          <td>{category?.name}</td>
                           <td>
                             <button
-                              onClick={(e) => { e.stopPropagation(); removeBtn(category._id) }}
+                              onClick={(e) => { e.stopPropagation(); removeBtn(category?._id) }}
                               className='btn btn-danger'>
                               Remove
                             </button>
@@ -148,17 +139,6 @@ export default function MyCategories() {
             </table>
           </div>
         </div>
-      </div>
-      <div className='pagination-nav'>
-        <Pagination
-          activePage={currentPage}
-          itemsCountPerPage={postPerPage}
-          totalItemsCount={totalResult}
-          pageRangeDisplayed={10}
-          onChange={handlePageChange}
-          itemClass="page-item"
-          linkClass="page-link"
-        />
       </div>
     </div>
   </>

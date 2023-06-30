@@ -13,6 +13,7 @@ const authSlice = createSlice({
     },
 
     logout(state) {
+      localStorage.removeItem("AdminToken");
       state.AdminToken = localStorage.getItem("AdminToken");
     }
   }

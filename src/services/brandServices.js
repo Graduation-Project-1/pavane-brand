@@ -6,7 +6,12 @@ let brandServices = {
     return response
   },
 
-  getBrandById: async () => {
+  uploadCoverImageBrand: async (id, obj) => {
+    const response = await Axios.post(`uploadCoverImageBrand/${id}`, obj)
+    return response
+  },
+
+  getBrand: async () => {
     const response = await Axios.get(`getBrand`)
     return response
   },

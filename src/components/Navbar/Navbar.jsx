@@ -15,14 +15,14 @@ export default function Navbar() {
   const [name, setName] = useState('')
   const [errorrMessage, setErrorMessage] = useState('')
 
-  async function getBrandByIdHandler() {
+  async function getBrandHandler() {
     try {
-      const { data } = await brandServices.getBrandById();
-      if (data.success && data.status === 200) {
-        setName(data.Data.name)
+      const { data } = await brandServices.getBrand();
+      if (data?.success && data?.status === 200) {
+        setName(data?.Data?.name)
       }
     } catch (e) {
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -32,7 +32,7 @@ export default function Navbar() {
   }
 
   useEffect(() => {
-    getBrandByIdHandler()
+    getBrandHandler()
   }, [])
 
   return <>

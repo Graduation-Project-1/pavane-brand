@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import OverlayLoading from '../../../components/OverlayLoading/OverlayLoading'
 import collectionServices from '../../../services/collectionServices'
+import toastPopup from '../../../helpers/toastPopup'
+import imageEndPoint from '../../../services/imagesEndPoint'
 import './CollectionDetails.scss'
 
 export default function CollectionDetails() {
@@ -10,22 +12,23 @@ export default function CollectionDetails() {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false)
+  const [archiveLoading, setArchiveLoading] = useState(false)
   const [collection, setCollection] = useState({})
   const [categories, setCategories] = useState([])
-  const [itemsList, setItemsList] = useState([])
   const [errorMessage, setErrorMessage] = useState("");
   const [modalShow, setModalShow] = useState(false)
+  const [collectionItems, setCollectionItems] = useState([])
 
   async function getCollectionByIdHandler() {
     setLoading(true)
     try {
-      const { data } = await collectionServices.getCollectionById(params.id);
+      const { data } = await collectionServices.getCollectionById(params?.id);
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
-        setCollection(data.Data)
+        setCollection(data?.Data)
         setCategories(data?.Data?.categoryList)
-        setItemsList(data?.Data?.itemsList)
+        setCollectionItems(data?.Data?.itemsList)
       }
     } catch (e) {
       setLoading(false);
@@ -36,13 +39,40 @@ export default function CollectionDetails() {
   async function deleteCollectionHandler() {
     setLoading(true)
     try {
-      const { data } = await collectionServices.deleteCollection(params.id)
+      const { data } = await collectionServices.deleteCollection(params?.id)
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setModalShow(false)
         setLoading(false);
-        navigate(`/collections`)
+        navigate(`/collections/page/${params?.pageNumber}`)
+        toastPopup.success("Collection deleted successfully")
       }
+    } catch (e) {
+      setLoading(false);
+      setErrorMessage(e?.response?.data?.message);
+    }
+  }
+
+  async function addToArchiveHandler() {
+    setArchiveLoading(true)
+    try {
+      const { data } = await collectionServices.addToArchive(params?.id)
+      setArchiveLoading(false);
+      getCollectionByIdHandler()
+      toastPopup.success("Collection added to archive successfully")
+    } catch (e) {
+      setLoading(false);
+      setErrorMessage(e?.response?.data?.message);
+    }
+  }
+
+  async function removeFromArchiveHandler() {
+    setArchiveLoading(true)
+    try {
+      const { data } = await collectionServices.removeFromArchive(params?.id)
+      setArchiveLoading(false);
+      getCollectionByIdHandler()
+      toastPopup.success("Collection removed from archive successfully")
     } catch (e) {
       setLoading(false);
       setErrorMessage(e?.response?.data?.message);
@@ -80,10 +110,25 @@ export default function CollectionDetails() {
               </div>) : ""
           }
         </div>
+        <div>
+          <button className='back' onClick={() => {
+            navigate(`/collections/page/${params?.pageNumber}`)
+          }}>
+            <i className="fa-solid fa-arrow-left"></i>
+          </button>
+        </div>
         <div className="col-md-4">
           <div className="image">
-            <img src={`https://graduation-project-23.s3.amazonaws.com/${collection.image}`}
-              alt="Collection Cover" />
+            <img
+              src={
+                collection?.image ?
+                  collection?.image?.includes('https://') ?
+                    collection?.image :
+                    `${imageEndPoint}${collection?.image}`
+                  : "https://www.lcca.org.uk/media/574173/brand.jpg"
+              }
+              alt="Collection Image"
+              className='category-image' />
           </div>
         </div>
         <div className="col-md-8">
@@ -91,10 +136,27 @@ export default function CollectionDetails() {
             <div className="row">
               <div className="col-md-12">
                 <div className="actions">
-                  <button onClick={() => { navigate(`/collections/${params.id}/edit`) }}
+                  <button onClick={() => {
+                    navigate(`/collections/page/${params?.pageNumber}/${params?.id}/edit`)
+                  }}
                     className='edit btn btn-warning'>
                     Edit
                   </button>
+                  {
+                    collection?.isArchived ? (
+                      <button
+                        className='edit btn btn-warning'
+                        onClick={removeFromArchiveHandler}>
+                        {archiveLoading ? <i className="fa-solid fa-spinner fa-spin"></i> : "Remove from Archive"}
+                      </button>
+                    ) : (
+                      <button
+                        className='edit btn btn-warning'
+                        onClick={addToArchiveHandler}>
+                        {archiveLoading ? <i className="fa-solid fa-spinner fa-spin"></i> : "Add to Archive"}
+                      </button>
+                    )
+                  }
                   <button onClick={() => { setModalShow(true) }}
                     className='delete btn btn-danger'>
                     Delete
@@ -102,47 +164,37 @@ export default function CollectionDetails() {
                 </div>
               </div>
             </div>
-            <h2>{collection.name}</h2>
-            {collection.season === 'none' ? "" : (<p>Season: {collection.season}</p>)}
-            <p>Date: {new Date(collection.date).toDateString()}</p>
-            <p>Reviews: {collection.numberOfReviews}</p>
-            <p>Likes: {collection.numberOfLikes}</p>
-            <p>Rate: {collection.averageRate}</p>
-            <p>Discount: {collection.discountRate}</p>
-            <p>Available Categories: {
-              categories.map((category) => {
-                return category.name + ", "
+            <h2>{collection?.name}</h2>
+            <p><span>Season:</span> {collection?.season}</p>
+            <p><span>Date:</span> {new Date(collection?.date).toDateString()}</p>
+            <p><span>Discount:</span> {collection?.discountRate}</p>
+            <p><span>Likes:</span> {collection?.numberOfLikes}</p>
+            <p><span>Reviews:</span> {collection?.numberOfReviews}</p>
+            <p><span>Rate:</span> {collection?.averageRate}</p>
+            <p><span>Categories:</span> {
+              categories?.map((category) => {
+                return category?.name + ", "
               })
             }</p>
+            <p><span>Number of items:</span> {collection?.itemsList?.length}</p>
           </div>
         </div>
+
+        <div className='cat-items-style'><p>Brand Items</p></div>
         <div className="row">
-          <div className="col-md-12">
-            <div className="all-items">
-              <div className="all-items-label">
-                <h3>All Items</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="row data-data">
           {
-            itemsList.map((item, index) => {
+            collectionItems?.map((item) => {
               return (
-                <div className="col-md-3" key={item._id}>
-                  <div className="item" onClick={() => navigate(`/items/${item._id}`)}>
-                    {item.cover ? (
-                      <div className="image">
-                        <img src={`https://graduation-project-23.s3.amazonaws.com/${item.cover}`}
-                          alt="Item Image" />
-                      </div>
-                    ) : (
-                      <div className="image">
-                        <img src={item.images[0]} alt="Item Image" />
-                      </div>
-                    )}
+                <div className="col-md-3" key={item?._id}>
+                  <div className="item" onClick={() => navigate(`/items/${item?._id}`)}>
+                    <div className="image">
+                      <img src={item?.images?.[0]?.includes('https://') ?
+                        item?.images?.[0] :
+                        `${imageEndPoint}${item?.images?.[0]}`}
+                        alt="Item Image" />
+                    </div>
                     <div className="item-info">
-                      <h3>{item.name.slice(0, 10)}</h3>
+                      <h3>{item?.name?.slice(0, 10)}</h3>
                     </div>
                   </div>
                 </div>

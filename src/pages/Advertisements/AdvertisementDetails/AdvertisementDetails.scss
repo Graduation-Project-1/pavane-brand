@@ -1,0 +1,78 @@
+.overlay {
+  height: 100px;
+  width: 200px;
+  display: flex;
+  justify-content: center;
+}
+
+.image {
+  margin: 20px;
+  height: 250px;
+
+  img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+}
+
+.data {
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+
+    .delete {
+      margin: 0 5px;
+    }
+    .edit {
+      margin: 0 5px;
+    }
+  }
+  background-color: burlywood;
+  height: auto;
+  margin: 20px;
+  padding: 10px;
+  border-radius: 10px;
+
+  h2 {
+    text-align: center;
+    color: #242424;
+    text-transform: uppercase;
+  }
+
+  p {
+    color: #242424;
+  }
+}
+
+.overlay-modal {
+  background-color: rgba(0, 0, 0, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+
+  .overlay-box {
+    background-color: rgb(255, 255, 255);
+    padding: 30px;
+    border-radius: 20px;
+
+    .modal-buttons {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+      margin-top: 20px;
+
+      .btn {
+        margin: 0 5px !important;
+      }
+    }
+  }
+}

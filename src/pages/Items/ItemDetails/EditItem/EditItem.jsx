@@ -1,9 +1,11 @@
-import Joi from 'joi';
 import Multiselect from 'multiselect-react-dropdown';
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import categoryServices from '../../../../services/categoryServices';
 import itemServices from '../../../../services/itemServices';
+import toastPopup from '../../../../helpers/toastPopup';
+import ImagesUpload from '../../../../components/ImagesUpload/ImagesUpload';
+import imageEndPoint from '../../../../services/imagesEndPoint'
 import './EditItem.scss'
 
 export default function EditItem() {
@@ -12,17 +14,18 @@ export default function EditItem() {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false);
-  const [errorList, setErrorList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [uploadImage, setUploadImage] = useState(null);
+  const [uploadCover, setUploadCover] = useState(null);
   const [categories, setCategories] = useState([])
   const [selectedCategories, setSelectedCategories] = useState([])
-  const [xsSize, setXsSize] = useState(false);
-  const [sSize, setSSize] = useState(false);
-  const [mSize, setMSize] = useState(false);
-  const [lSize, setLSize] = useState(false);
-  const [xlSize, setXLSize] = useState(false);
-  const [xxlSize, setXXLSize] = useState(false);
+  const [selectedSizes, setSelectedSizes] = useState([])
+  const [itemImages, setItemImages] = useState([]);
+  const [uploadImages, setUploadImages] = useState([]);
+  const [imageUrl, setImageUrl] = useState("")
+  const [imageToBeDeleted, setImageToBeDeleted] = useState("");
+  const [modalShow, setModalShow] = useState(false);
+
+  let sizesArr = ["XS", "S", "M", "L", "XL", "XXL"]
 
   const [oldItem, setOldItem] = useState({
     name: "",
@@ -31,7 +34,8 @@ export default function EditItem() {
     gender: "",
     isAdult: true,
     sizes: [],
-    categoryList: ""
+    categoryList: "",
+    discountRate: ""
   })
 
   const [newItem, setNewItem] = useState({
@@ -41,7 +45,8 @@ export default function EditItem() {
     gender: "",
     isAdult: true,
     sizes: [],
-    categoryList: ""
+    categoryList: "",
+    discountRate: ""
   })
 
   function checkUpdatedFields(newData, oldData) {
@@ -58,9 +63,9 @@ export default function EditItem() {
   async function getItemByIdHandler() {
     setLoading(true)
     try {
-      const { data } = await itemServices.getItemById(params.id);
+      const { data } = await itemServices.getItemById(params?.id);
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
         setOldItem({
           name: data?.Data?.name,
@@ -69,6 +74,7 @@ export default function EditItem() {
           gender: data?.Data?.gender,
           isAdult: data?.Data?.isAdult,
           sizes: data?.Data?.sizes,
+          discountRate: data?.Data?.discountRate,
           categoryList: data?.Data?.categoryList.map((cat) => { return cat._id })
         })
         setNewItem({
@@ -78,15 +84,17 @@ export default function EditItem() {
           gender: data?.Data?.gender,
           isAdult: data?.Data?.isAdult,
           sizes: data?.Data?.sizes,
+          discountRate: data?.Data?.discountRate,
           categoryList: data?.Data?.categoryList.map((cat) => { return cat._id })
         })
-        setUploadImage(data?.Data?.cover)
+        setUploadCover(data?.Data?.cover)
         setSelectedCategories(data?.Data?.categoryList)
-
+        setSelectedSizes(data?.Data?.sizes)
+        setItemImages(data?.Data?.images)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -96,61 +104,59 @@ export default function EditItem() {
     setNewItem(newItemData)
   }
 
-  function editItemValidation(newItem) {
-    const schema = Joi.object({
-      name: Joi.string()
-        .required(),
-      price: Joi.number().positive().required(),
-      description: Joi.string().required(),
-      gender: Joi.string(),
-      isAdult: Joi.any(),
-      sizes: Joi.any(),
-      categoryList: Joi.any()
-    });
-    return schema.validate(newItem, { abortEarly: false });
-  }
-
   async function editItemHandler(e) {
     e.preventDefault();
-    setErrorList([]);
-    let validationResult = editItemValidation(newItem);
     setLoading(true);
-    if (validationResult.error) {
-      setLoading(false);
-      setErrorList(validationResult.error.details);
-    } else {
-      setLoading(true);
-      let editedData = {};
+    let editedData = {};
 
-      Object.keys(checkUpdatedFields(newItem, oldItem)).forEach((key) => {
-        editedData = {
-          ...editedData,
-          [key]: newItem[key]
-        }
-      })
+    Object.keys(checkUpdatedFields(newItem, oldItem)).forEach((key) => {
+      editedData = {
+        ...editedData,
+        [key]: newItem[key]
+      }
+    })
 
-      try {
-        const { data } = await itemServices.updateItem(params.id, editedData)
-        if (data.success && data.status === 200) {
-          setLoading(false);
-          var formData = new FormData();
-          formData.append("images", uploadImage);
-          setLoading(true);
+    try {
+      const { data } = await itemServices.updateItem(params?.id, editedData)
+      if (data?.success && data?.status === 200) {
+        setLoading(false);
+        var formData = new FormData();
+        formData.append("images", uploadCover);
+        setLoading(true);
+        if (typeof (uploadCover) === 'object') {
           try {
-            const { data } = typeof uploadImage === "object" && await itemServices.uploadItemCover(params.id, formData)
-            if (data.success && data.status === 200) {
+            const { data } = typeof uploadCover === "object" && await itemServices.uploadItemCover(params?.id, formData)
+            if (data?.success && data?.status === 200) {
               setLoading(false);
             }
           } catch (error) {
             setLoading(false);
             setErrorMessage(error);
           }
-          navigate(`/items/${params.id}`);
         }
-      } catch (error) {
-        setLoading(false);
-        setErrorMessage(error.response);
+        if (uploadImages.length > 0) {
+          var imagesFormData = new FormData();
+          uploadImages.forEach((image) => {
+            imagesFormData.append('images', image.file);
+          });
+          setLoading(true)
+          try {
+            const { data } = await itemServices.uploadItemImages(params?.id, imagesFormData)
+            setLoading(true)
+            if (data?.success && data?.status === 200) {
+              setLoading(false);
+            }
+          } catch (error) {
+            setLoading(false);
+            setErrorMessage(error);
+          }
+        }
+        navigate(`/items/page/${params?.pageNumber}/${params?.id}`)
+        toastPopup.success("Item updated successfully")
       }
+    } catch (error) {
+      setLoading(false);
+      setErrorMessage(error?.response);
     }
   };
 
@@ -164,13 +170,13 @@ export default function EditItem() {
     try {
       const { data } = await categoryServices.getAllCategories(1, 5000);
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
-        setCategories(data.Data)
+        setCategories(data?.Data)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -188,26 +194,24 @@ export default function EditItem() {
     }
   }
 
-  useEffect(() => {
-    getItemByIdHandler()
-    getAllCategoriesHandler()
-  }, [])
-
-
-  let categoriesOptions = categories.map((category) => {
+  let categoriesOptions = categories?.map((category) => {
     return ({
-      name: category.name,
-      id: category._id
-    }
-    )
+      name: category?.name,
+      id: category?._id
+    })
   })
 
-  let selected_categories = selectedCategories.map((selectedCategory) => {
+  let selected_categories = selectedCategories?.map((selectedCategory) => {
     return ({
-      name: selectedCategory.name,
-      id: selectedCategory._id
-    }
-    )
+      name: selectedCategory?.name,
+      id: selectedCategory?._id
+    })
+  })
+
+  let selected_sizes = selectedSizes.map((selected_size) => {
+    return ({
+      name: selected_size
+    })
   })
 
   function isSelectedSize(size) {
@@ -217,14 +221,75 @@ export default function EditItem() {
   function toggleSelectedSizesHandler(size) {
     if (isSelectedSize(size)) {
       let oldSelectedSizes = newItem["sizes"]
-      let newSelectedSizes = oldSelectedSizes.filter((size) => { return size !== size })
+      let newSelectedSizes = oldSelectedSizes.filter((singleSize) => { return singleSize !== size?.name })
       setNewItem((prev) => { return { ...prev, sizes: newSelectedSizes } })
     } else {
-      setNewItem((prev) => { return { ...prev, sizes: [...prev.sizes, size] } })
+      setNewItem((prev) => { return { ...prev, sizes: [...prev.sizes, size?.name] } })
     }
   }
 
+  let sizesOptions = sizesArr.map((size) => {
+    return ({
+      name: size
+    })
+  })
+
+  function getImage(image) {
+    setImageUrl(image);
+  }
+
+  function onDleteFromCurrent(image) {
+    setImageToBeDeleted(image)
+    setModalShow(true)
+  }
+
+  async function deleteItemImage() {
+    setLoading(true);
+    try {
+      const { data } = await itemServices.deleteImagesFromItem(params?.id,
+        {
+          "images": [
+            imageToBeDeleted
+          ]
+        });
+      setLoading(false);
+      setModalShow(false);
+      getItemByIdHandler();
+      toastPopup.success("Image deleted successfully");
+    } catch (e) {
+      setLoading(false);
+      setErrorMessage(e);
+    }
+  }
+
+  useEffect(() => {
+    getItemByIdHandler()
+    getAllCategoriesHandler()
+  }, [])
+
   return <>
+    <div>
+      <button className='back-edit' onClick={() => { navigate(`/items/page/${params?.pageNumber}/${params?.id}`) }}>
+        <i className="fa-solid fa-arrow-left"></i>
+      </button>
+    </div>
+
+    {modalShow && <div className="overlay-modal" id='overlay-remove'>
+      <div className="overlay-box">
+        <h3>Are you sure you want to delete?</h3>
+        <div className="modal-buttons">
+          <div onClick={() => setModalShow(false)}
+            className='btn btn-dark w-50'>
+            Cancel
+          </div>
+          <div onClick={() => { deleteItemImage() }}
+            className='delete btn btn-danger w-50'>
+            Delete
+          </div>
+        </div>
+      </div>
+    </div>}
+
     <div className="row">
       <div className="col-md-12">
         <div className="edit-brand-page">
@@ -236,25 +301,16 @@ export default function EditItem() {
                   {errorMessage}
                 </div>) : ""
             }
-            {
-              errorList.map((err, index) => {
-                return (
-                  <div key={index} className="alert alert-danger myalert">
-                    {err.message}
-                  </div>
-                )
-              })
-            }
-            <div className="main-image-label">
-              {uploadImage && (
+            <div className="main-cover-label">
+              {uploadCover && (
                 <img
-                  src={typeof uploadImage === "object" ? URL.createObjectURL(uploadImage) :
-                    (`https://graduation-project-23.s3.amazonaws.com/${uploadImage}`)}
+                  src={typeof uploadCover === "object" ? URL.createObjectURL(uploadCover) :
+                    (`${imageEndPoint}${uploadCover}`)}
                   alt="imag-viewer"
                   className="uploaded-img"
                   onClick={() => {
                     window.open(
-                      uploadImage ? URL.createObjectURL(uploadImage) : null
+                      uploadCover ? URL.createObjectURL(uploadCover) : null
                     );
                   }}
                 />
@@ -265,7 +321,7 @@ export default function EditItem() {
                 name="upload-img"
                 ref={ref}
                 onChange={(e) => {
-                  setUploadImage(e.target.files[0]);
+                  setUploadCover(e.target.files[0]);
                 }}
               />
               <label
@@ -273,9 +329,19 @@ export default function EditItem() {
                 onClick={imageUploader}
                 htmlFor="upload-img"
               >
-                Add Image
+                Add Cover
               </label>
             </div>
+
+            <ImagesUpload
+              type="edit"
+              viewList={itemImages}
+              getImage={getImage}
+              onDleteFromCurrent={onDleteFromCurrent}
+              uploadedImagesList={uploadImages}
+              setUploadedImagesList={setUploadImages}
+            />
+
             <form onSubmit={editItemHandler}>
               <label htmlFor="name">Name</label>
               <input
@@ -284,7 +350,7 @@ export default function EditItem() {
                 type="text"
                 name="name"
                 id="name"
-                value={newItem.name}
+                value={newItem?.name}
               />
               <label htmlFor="description">Description</label>
               <input
@@ -293,7 +359,7 @@ export default function EditItem() {
                 type="text"
                 name="description"
                 id="description"
-                value={newItem.description}
+                value={newItem?.description}
               />
               <label htmlFor="price">Price</label>
               <input
@@ -302,7 +368,16 @@ export default function EditItem() {
                 type="number"
                 name="price"
                 id="price"
-                value={newItem.price}
+                value={newItem?.price}
+              />
+              <label htmlFor="name">Discount</label>
+              <input
+                onChange={getNewItemData}
+                className='form-control add-item-input'
+                type="number"
+                name="discountRate"
+                id="discount"
+                value={newItem?.discountRate}
               />
               <label htmlFor="">Gender</label>
               <div className="wrapper add-item-input">
@@ -312,7 +387,7 @@ export default function EditItem() {
                   type="radio"
                   name="gender"
                   id="male"
-                  checked={newItem.gender === 'male'}
+                  checked={newItem?.gender === 'male'}
                 />
                 <input
                   onChange={getNewItemData}
@@ -320,7 +395,7 @@ export default function EditItem() {
                   type="radio"
                   name="gender"
                   id="female"
-                  checked={newItem.gender === 'female'}
+                  checked={newItem?.gender === 'female'}
                 />
                 <label htmlFor="male" className="option male">
                   <div className="dot"></div>
@@ -333,7 +408,7 @@ export default function EditItem() {
               </div>
               <div className="check add-item-input">
                 <input
-                  checked={newItem.isAdult}
+                  checked={newItem?.isAdult}
                   type="checkbox"
                   id="isAdult"
                   onChange={(e) => { setNewItem((prev) => { return { ...prev, isAdult: e.target.checked } }) }} />
@@ -341,86 +416,37 @@ export default function EditItem() {
               </div>
 
               <label htmlFor="">Avaliable Sizes</label>
-              <div className="check">
-                <input
-                  checked={isSelectedSize('XS')}
-                  value='xs'
-                  type="checkbox"
-                  id="xs"
-                  onChange={(e) => { toggleSelectedSizesHandler("XS") }} />
-                <label htmlFor='xs'>XS</label>
-              </div>
-              <div className="check">
-                <input
-                  checked={isSelectedSize('S')}
-                  value='s'
-                  type="checkbox"
-                  id="s"
-                  onChange={(e) => { toggleSelectedSizesHandler("S") }} />
-                <label htmlFor='s'>S</label>
-              </div>
-              <div className="check">
-                <input
-                  checked={isSelectedSize('M')}
-                  value='m'
-                  type="checkbox"
-                  id="m"
-                  onChange={(e) => { toggleSelectedSizesHandler("M") }} />
-                <label htmlFor='m'>M</label>
-              </div>
-              <div className="check">
-                <input
-                  checked={isSelectedSize('L')}
-                  value='l'
-                  type="checkbox"
-                  id="l"
-                  onChange={(e) => { toggleSelectedSizesHandler("L") }} />
-                <label htmlFor='l'>L</label>
-              </div>
-              <div className="check">
-                <input
-                  checked={isSelectedSize('XL')}
-                  value='xl'
-                  type="checkbox"
-                  id="xl"
-                  onChange={(e) => { toggleSelectedSizesHandler("XL") }} />
-                <label htmlFor='xl'>XL</label>
-              </div>
-              <div className="check add-item-input">
-                <input
-                  checked={isSelectedSize('XXL')}
-                  value='xxl'
-                  type="checkbox"
-                  id="xxl"
-                  onChange={(e) => { toggleSelectedSizesHandler("XXL") }} />
-                <label htmlFor='xxl'>XXL</label>
-              </div>
+              <Multiselect
+                displayValue="name"
+                selectedValues={selected_sizes}
+                onKeyPressFn={function noRefCheck() { }}
+                onRemove={function noRefCheck(selectedList, selectedItem) {
+                  toggleSelectedSizesHandler(selectedItem)
+                }}
+                onSearch={function noRefCheck() { }}
+                onSelect={function noRefCheck(selectedList, selectedItem) {
+                  toggleSelectedSizesHandler(selectedItem)
+                }}
+                options={sizesOptions}
+                showCheckbox
+              />
 
-              {/* {
-                categories.map((category, index) => {
-                  return (
-                    <div className="check" key={category._id}>
-                      <input checked={isSelectedCategory(category._id)} type="checkbox" id={category.name} onChange={(e) => { toggleSelectedCategoriesHandler(category._id) }} />
-                      <label htmlFor={category.name}>{category.name}</label>
-                    </div>
-                  )
-                })
-              } */}
               <p className='select-categories'>Select Categories</p>
               <Multiselect
                 displayValue="name"
                 selectedValues={selected_categories}
                 onKeyPressFn={function noRefCheck() { }}
                 onRemove={function noRefCheck(selectedList, selectedItem) {
-                  toggleSelectedCategoriesHandler(selectedItem.id)
+                  toggleSelectedCategoriesHandler(selectedItem?.id)
                 }}
                 onSearch={function noRefCheck() { }}
                 onSelect={function noRefCheck(selectedList, selectedItem) {
-                  toggleSelectedCategoriesHandler(selectedItem.id)
+                  toggleSelectedCategoriesHandler(selectedItem?.id)
                 }}
                 options={categoriesOptions}
                 showCheckbox
               />
+
               <button className='add-brand-button'>
                 {loading ?
                   (<i className="fas fa-spinner fa-spin "></i>)

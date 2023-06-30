@@ -1,4 +1,3 @@
-import Joi from 'joi';
 import Multiselect from 'multiselect-react-dropdown';
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +5,7 @@ import brandServices from '../../../services/brandServices';
 import categoryServices from '../../../services/categoryServices';
 import collectionServices from '../../../services/collectionServices';
 import itemServices from '../../../services/itemServices';
+import toastPopup from '../../../helpers/toastPopup';
 import './AddCollection.scss'
 
 export default function AddCollection() {
@@ -13,7 +13,6 @@ export default function AddCollection() {
   const navigate = useNavigate()
 
   const [loading, setLoading] = useState(false);
-  const [errorList, setErrorList] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadImage, setUploadImage] = useState(null);
   const [categories, setCategories] = useState([])
@@ -25,13 +24,9 @@ export default function AddCollection() {
   const [items, setItems] = useState([])
 
   const [newCollection, setNewCollection] = useState({
-    name: ""
+    name: "",
+    discountRate: 0
   })
-
-  const ref = useRef();
-  const imageUploader = (e) => {
-    ref.current.click();
-  };
 
   function getNewCollectionData(e) {
     let newCollectionData = { ...newCollection }
@@ -39,110 +34,18 @@ export default function AddCollection() {
     setNewCollection(newCollectionData)
   }
 
-  function addCollectionValidation(newCollection) {
-    const schema = Joi.object({
-      name: Joi.string()
-        .pattern(/^[a-zA-Z0-9 &_\-'"\\|,.\/]*$/)
-        .required()
-    });
-    return schema.validate(newCollection, { abortEarly: false });
-  }
-
-  async function addCollectionHandler(e) {
-    e.preventDefault();
-    setErrorList([]);
-    let validationResult = addCollectionValidation(newCollection);
-    setLoading(true);
-    if (validationResult.error) {
-      setLoading(false);
-      setErrorList(validationResult.error.details);
-    } else {
-      setLoading(true);
-      try {
-        let collectionData = {
-          name: newCollection.name,
-          season: season,
-          date: date,
-          itemsList: getFinalItems(),
-          categoryList: getFinalCategories(),
-          brandId: brandId
-        }
-
-        const { data } = await collectionServices.addCollection(collectionData)
-        if (data.success && data.message === "collectionAdded") {
-          setLoading(false);
-          let collectionID = data.Data._id
-          var formData = new FormData();
-          formData.append("images", uploadImage);
-          console.log(data);
-          setLoading(true)
-          try {
-            const { data } = await collectionServices.uploadImageCollection(collectionID, formData)
-            setLoading(true)
-            if (data.success && data.status === 200) {
-              setLoading(false);
-              console.log(data);
-            } else {
-              console.log(data);
-            }
-          } catch (error) {
-            setLoading(false);
-            setErrorMessage(error.response.data.message);
-          }
-          navigate("/collections");
-        } else {
-          setErrorMessage(data.message);
-        }
-      } catch (error) {
-        setLoading(false);
-        setErrorMessage(error.response.data.message);
-      }
-    }
-  };
-
   async function getAllCategoriesHandler() {
     setLoading(true)
     try {
       const { data } = await categoryServices.getAllCategories(1, 5000);
       setLoading(true)
-      if (data.success && data.status === 200) {
+      if (data?.success && data?.status === 200) {
         setLoading(false);
-        setCategories(data.Data)
+        setCategories(data?.Data)
       }
     } catch (e) {
       setLoading(false);
-      setErrorMessage(e.response.data.message);
-    }
-  }
-
-  async function getBrandByIdHandler() {
-    setLoading(true)
-    try {
-      const { data } = await brandServices.getBrandById();
-      setLoading(true)
-      if (data.success && data.status === 200) {
-        setLoading(false);
-        setBrandId(data.Data._id)
-      }
-    } catch (e) {
-      setLoading(false);
-      setErrorMessage(e.response.data.message);
-    }
-  }
-
-  async function getAllItemsHandler() {
-    setLoading(true)
-    try {
-      const { data } = await itemServices.getAllBrandItems(1, 5000);
-      setLoading(true)
-      if (data.success && data.status === 200) {
-        setLoading(false);
-        setItems(data.Data)
-        // setTotalResult(data.totalResult)
-      }
-    } catch (e) {
-      setLoading(false);
-      setErrorMessage(e.response.data.message);
+      setErrorMessage(e?.response?.data?.message);
     }
   }
 
@@ -156,6 +59,54 @@ export default function AddCollection() {
     }
   }
 
+  function getFinalCategories() {
+    let finalBrandCategories = []
+    selectedCategories.forEach((selectedCategory) => {
+      categories.filter(category => category?._id === selectedCategory).map((category) => {
+        finalBrandCategories.push(category?._id)
+      })
+    })
+
+    return finalBrandCategories
+  }
+
+  let categoriesOptions = categories?.map((category) => {
+    return ({
+      name: category?.name,
+      id: category?._id
+    })
+  })
+
+  async function getBrandHandler() {
+    setLoading(true)
+    try {
+      const { data } = await brandServices.getBrand();
+      setLoading(true)
+      if (data?.success && data?.status === 200) {
+        setLoading(false);
+        setBrandId(data?.Data?._id)
+      }
+    } catch (e) {
+      setLoading(false);
+      setErrorMessage(e?.response?.data?.message);
+    }
+  }
+
+  async function getAllItemsHandler() {
+    setLoading(true)
+    try {
+      const { data } = await itemServices.getAllBrandItems(1, 10000);
+      setLoading(true)
+      if (data?.success && data?.status === 200) {
+        setLoading(false);
+        setItems(data?.Data)
+      }
+    } catch (e) {
+      setLoading(false);
+      setErrorMessage(e?.response?.data?.message);
+    }
+  }
+
   function toggleSelectedItemsHandler(itemId) {
     if (selectedItems.includes(itemId)) {
       let oldSelectedItems = selectedItems
@@ -166,54 +117,83 @@ export default function AddCollection() {
     }
   }
 
-  function getFinalCategories() {
-    let finalBrandCategories = []
-    selectedCategories.forEach((selectedCategory) => {
-      categories.filter(category => category._id === selectedCategory).map((category) => {
-        finalBrandCategories.push(category._id)
-      })
-    })
-
-    return finalBrandCategories
-  }
-
   function getFinalItems() {
     let finalBrandItems = []
     selectedItems.forEach((selectedItem) => {
-      items.filter(item => item._id === selectedItem).map((item) => {
-        finalBrandItems.push(item._id)
+      items.filter(item => item?._id === selectedItem).map((item) => {
+        finalBrandItems.push(item?._id)
       })
     })
 
     return finalBrandItems
   }
 
+  let itemsOptions = items?.map((item) => {
+    return ({
+      name: item?.name,
+      id: item?._id
+    })
+  })
+
+  async function addCollectionHandler(e) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      let collectionData = {
+        name: newCollection?.name,
+        season: season,
+        date: date,
+        discountRate: newCollection?.discountRate,
+        itemsList: getFinalItems(),
+        categoryList: getFinalCategories(),
+        brandId: brandId
+      }
+
+      const { data } = await collectionServices.addCollection(collectionData)
+      if (data?.success && data?.message === "collectionAdded") {
+        setLoading(false);
+        let collectionID = data?.Data?._id
+        var formData = new FormData();
+        formData.append("images", uploadImage);
+        console.log(data);
+        setLoading(true)
+        try {
+          const { data } = await collectionServices.uploadImageCollection(collectionID, formData)
+          setLoading(true)
+          if (data?.success && data?.status === 200) {
+            setLoading(false);
+          }
+        } catch (error) {
+          setLoading(false);
+          setErrorMessage(error?.response?.data?.message);
+        }
+        navigate("/collections");
+        toastPopup.success("Collection added successfully")
+      }
+    } catch (error) {
+      setLoading(false);
+      setErrorMessage(error?.response?.data?.message);
+    }
+  };
+
+  const ref = useRef();
+  const imageUploader = (e) => {
+    ref.current.click();
+  };
+
   useEffect(() => {
     getAllCategoriesHandler()
-    getBrandByIdHandler()
+    getBrandHandler()
     getAllItemsHandler()
   }, [])
 
-
-  let itemsOptions = items.map((item) => {
-    return ({
-      name: item.name,
-      id: item._id
-    }
-    )
-  })
-
-  let categoriesOptions = categories.map((category) => {
-    return ({
-      name: category.name,
-      id: category._id
-    }
-    )
-  })
-
-
-
   return <>
+    <div>
+      <button className='back-edit' onClick={() => { navigate(`/collections`) }}>
+        <i className="fa-solid fa-arrow-left"></i>
+      </button>
+    </div>
+
     <div className="row">
       <div className="col-md-12">
         <div className="add-brand-page">
@@ -224,15 +204,6 @@ export default function AddCollection() {
                 (<div className="alert alert-danger myalert">
                   {errorMessage}
                 </div>) : ""
-            }
-            {
-              errorList.map((err, index) => {
-                return (
-                  <div key={index} className="alert alert-danger myalert">
-                    {err.message}
-                  </div>
-                )
-              })
             }
             <div className="main-image-label">
               {uploadImage && (
@@ -261,7 +232,7 @@ export default function AddCollection() {
                 onClick={imageUploader}
                 htmlFor="upload-img"
               >
-                Add Image
+                Add Collection Image
               </label>
             </div>
 
@@ -280,13 +251,13 @@ export default function AddCollection() {
                 id="season"
                 name="season"
                 title='season'>
-                <option defaultValue={""}>-- Season --</option>
-                <option value="Winter">Winter</option>
-                <option value="Spring">Spring</option>
-                <option value="Summer">Summer</option>
-                <option value="Fall">Fall</option>
-                <option value="none">none</option>
+                <option value="">-- Season --</option>
+                <option value="winter">Winter</option>
+                <option value="spring">Spring</option>
+                <option value="summer">Summer</option>
+                <option value="fall">Fall</option>
               </select>
+
               <label htmlFor="Date">Date</label>
               <div className="date add-brand-input">
                 <input
@@ -294,9 +265,18 @@ export default function AddCollection() {
                   type="date"
                   name="Date"
                   id="Date"
-                  className='picker'
+                  className='form-control add-brand-input'
                 />
               </div>
+
+              <label htmlFor="name">Discount</label>
+              <input
+                onChange={getNewCollectionData}
+                className='form-control add-collection-input'
+                type="number"
+                name="discountRate"
+                id="discount"
+              />
 
               <p className='select-categories'>Select Categories</p>
               <Multiselect
